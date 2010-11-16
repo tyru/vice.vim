@@ -28,10 +28,6 @@ endfun
 let s:SID_PREFIX = s:SID()
 delfunc s:SID
 
-function! s:local_func(name) "{{{
-    return '<SNR>' . s:SID_PREFIX . '_' . a:name
-endfunction "}}}
-
 
 let s:meta_object = {
 \   'type': {},
@@ -39,8 +35,7 @@ let s:meta_object = {
 
 " Returns function method name.
 function! s:meta_object.method(name) "{{{
-    " TODO: Create method onto caller script scope.
-    return s:local_func(self._class_name . '_method_' . a:name)
+    return 's:' . self._class_name . '_method_' . a:name
 endfunction "}}}
 
 " Create member (more primitive than property).
