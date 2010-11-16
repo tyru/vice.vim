@@ -15,10 +15,21 @@ function! vice#new(class_name) "{{{
     endfunction
 
     let obj._meta = deepcopy(s:meta_object)
-    let obj._meta.class_name = a:class_name
+    let obj._meta._class_name = a:class_name
     let obj._meta._parent_obj = obj    " FIXME: recursive reference.
 
     return obj
+endfunction "}}}
+
+
+function s:SID()
+    return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+endfun
+let s:SID_PREFIX = s:SID()
+delfunc s:SID
+
+function! s:local_func(name) "{{{
+    return '<SNR>' . s:SID_PREFIX . '_' . a:name
 endfunction "}}}
 
 
@@ -28,7 +39,8 @@ let s:meta_object = {
 
 " Returns function method name.
 function! s:meta_object.method(name) "{{{
-    " TODO
+    " TODO: Create method onto caller script scope.
+    return s:local_func(self._class_name . '_method_' . a:name)
 endfunction "}}}
 
 " Create member (more primitive than property).
