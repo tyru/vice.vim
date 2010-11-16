@@ -38,13 +38,10 @@ endfunction "}}}
 " a:1 is base type (if derived).
 function! s:meta_object.subtype(name, ...) "{{{
     if !has_key(self.type, a:name)
-        let self.type[a:name] = deepcopy(s:type_object)
+        let self.type[a:name] = {}
     endif
-    return self
+    return self.type[a:name]
 endfunction "}}}
-
-
-let s:type_object = {}
 
 
 " Restore 'cpoptions' {{{
