@@ -30,7 +30,7 @@ delfunc s:SID
 
 
 let s:meta_object = {
-\   'type': {},
+\   '_type': {},
 \   '_builders': [],
 \}
 
@@ -64,10 +64,10 @@ endfunction "}}}
 " Create subtype local to vice#new() object.
 " a:1 is base type (if derived).
 function! s:meta_object.subtype(name, ...) "{{{
-    if !has_key(self.type, a:name)
-        let self.type[a:name] = {}
+    if !has_key(self._type, a:name)
+        let self._type[a:name] = {}
     endif
-    return self.type[a:name]
+    return self._type[a:name]
 endfunction "}}}
 
 " Build vice#new() object.
