@@ -13,6 +13,7 @@ function! vice#new(class_name, caller_sid) "{{{
     function obj.new()
         return deepcopy(self)
     endfunction
+    let obj.clone = obj.new
 
     let obj._meta = deepcopy(s:meta_object)
     let obj._meta._class_name = a:class_name
