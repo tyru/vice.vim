@@ -7,7 +7,7 @@ set cpo&vim
 " }}}
 
 
-function! vice#new(class_name) "{{{
+function! vice#new(class_name, caller_sid) "{{{
     let obj = {}
 
     function obj.new()
@@ -17,6 +17,7 @@ function! vice#new(class_name) "{{{
     let obj._meta = deepcopy(s:meta_object)
     let obj._meta._class_name = a:class_name
     let obj._meta._parent_obj = obj    " FIXME: recursive reference.
+    let obj._meta._caller_sid = a:caller_sid
 
     return obj
 endfunction "}}}
@@ -36,18 +37,18 @@ let s:meta_object = {
 
 " Returns function method name.
 function! s:meta_object.method(name) "{{{
-    let real_name = 's:' . self._class_name . '_method_' . a:name
+    let real_name = self._class_name . '_method_' . a:name
     let builder = {
     \   'method_name': a:name,
     \   'parent': self._parent_obj,
-    \   'real_name': real_name,
+    \   'real_name': '<SNR>' . self._caller_sid . '_' . real_name,
     \}
     function builder.build()
         let self.parent[self.method_name] = function(self.real_name)
     endfunction
     call add(self._builders, builder)
 
-    return real_name
+    return 's:' . real_name
 endfunction "}}}
 
 " Create member (more primitive than property).
