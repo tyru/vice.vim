@@ -28,6 +28,7 @@ let s:meta_object = {
 
 " Returns function method name.
 function! s:meta_object.method(name) "{{{
+    " TODO
 endfunction "}}}
 
 " Create member (more primitive than property).
@@ -38,6 +39,7 @@ endfunction "}}}
 
 " Create property.
 function! s:meta_object.property(name, ...) "{{{
+    " TODO
 endfunction "}}}
 
 " Create subtype local to vice#new() object.
