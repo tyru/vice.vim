@@ -31,11 +31,23 @@ delfunc s:SID
 
 let s:meta_object = {
 \   'type': {},
+\   '_builders': [],
 \}
 
 " Returns function method name.
 function! s:meta_object.method(name) "{{{
-    return 's:' . self._class_name . '_method_' . a:name
+    let real_name = 's:' . self._class_name . '_method_' . a:name
+    let builder = {
+    \   'method_name': a:name,
+    \   'parent': self._parent_obj,
+    \   'real_name': real_name,
+    \}
+    function builder.build()
+        let self.parent[self.method_name] = function(self.real_name)
+    endfunction
+    call add(self._builders, builder)
+
+    return real_name
 endfunction "}}}
 
 " Create member (more primitive than property).
@@ -56,6 +68,13 @@ function! s:meta_object.subtype(name, ...) "{{{
         let self.type[a:name] = {}
     endif
     return self.type[a:name]
+endfunction "}}}
+
+" Build vice#new() object.
+function! s:meta_object.build() "{{{
+    for builder in self._builders
+        call builder.build()
+    endfor
 endfunction "}}}
 
 
