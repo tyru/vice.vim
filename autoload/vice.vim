@@ -30,6 +30,12 @@ let s:meta_object = {
 function! s:meta_object.method(name) "{{{
 endfunction "}}}
 
+" Create member (more primitive than property).
+function! s:meta_object.member(name, Default) "{{{
+    let parent = self._parent_obj
+    let parent[a:name] = a:Default
+endfunction "}}}
+
 " Create property.
 function! s:meta_object.property(name, ...) "{{{
 endfunction "}}}
