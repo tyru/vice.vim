@@ -129,8 +129,9 @@ function! s:class_factory.has(name, ...) "{{{
         let obj.where = self.where
     endif
     if has_key(opt, 'default')
-    \   && has_key(obj, 'where')
-    \   && obj.where(opt.default)
+    \   && (has_key(obj, 'where')
+    \       && obj.where(opt.default))
+    \   || !has_key(obj, 'where')
         let obj._value = opt.default
     endif
 
