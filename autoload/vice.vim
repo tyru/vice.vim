@@ -7,6 +7,9 @@ set cpo&vim
 " }}}
 
 
+let s:global_traits = {}
+
+
 function! vice#package(pkg, sid) "{{{
     return extend(
     \   deepcopy(s:package),
@@ -125,13 +128,14 @@ function! s:class_factory.has(name, ...) "{{{
 
     let self._object[a:name] = {'_name': a:name}
     let obj = self._object[a:name]
+
     if has_key(self, 'where')
         let obj.where = self.where
     endif
     if has_key(opt, 'default')
-    \   && (has_key(obj, 'where')
-    \       && obj.where(opt.default))
-    \   || !has_key(obj, 'where')
+    \   && (has_key(self, 'where')
+    \       && self.where(opt.default))
+    \   || !has_key(self, 'where')
         let obj._value = opt.default
     endif
 
