@@ -42,6 +42,38 @@ function! vice#validate_type(Value, expected) "{{{
 endfunction "}}}
 
 
+function! s:initialize_builtin_types() "{{{
+    function vice#class('Dict', s:SID_PREFIX).where(Value)
+        return type(a:Value) == type({})
+    endfunction
+
+    function vice#class('List', s:SID_PREFIX).where(Value)
+        return type(a:Value) == type([])
+    endfunction
+
+    function vice#class('Num', s:SID_PREFIX).where(Value)
+        return type(a:Value) == type(0)
+        \   || type(a:Value) == type(0.0)
+    endfunction
+
+    function vice#class('Int', s:SID_PREFIX, {'parent': 'Num'}).where(Value)
+        return type(a:Value) == type(0)
+    endfunction
+
+    function vice#class('Float', s:SID_PREFIX, {'parent': 'Num'}).where(Value)
+        return type(a:Value) == type(0.0)
+    endfunction
+
+    function vice#class('Str', s:SID_PREFIX).where(Value)
+        return type(a:Value) == type("")
+    endfunction
+
+    function vice#class('Fn', s:SID_PREFIX).where(Value)
+        return type(a:Value) == type(function('tr'))
+    endfunction
+endfunction "}}}
+
+
 
 let s:object = {}
 function! s:object.new() "{{{
