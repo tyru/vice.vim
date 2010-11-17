@@ -7,21 +7,18 @@ set cpo&vim
 " }}}
 
 
-function! vice#new(class_name, caller_sid) "{{{
-    let obj = {}
-
-    function obj.new()
-        return deepcopy(self)
-    endfunction
-    let obj.clone = obj.new
-
-    let obj._meta = deepcopy(s:meta_object)
-    let obj._meta._class_name = a:class_name
-    let obj._meta._caller_sid = a:caller_sid
-    " This cyclic reference will be deleted after building object.
-    let obj._meta._parent_obj = obj
-
-    return obj
+function! vice#class(class_name, namespace) "{{{
+    " a:namespace is currently just a SID.
+    return extend(
+    \   deepcopy(s:class_factory),
+    \   {
+    \       '_class_name': a:class_name,
+    \       '_namespace' : a:namespace,
+    \       '_object'    : deepcopy(s:object),
+    \       '_builders'  : [],
+    \   },
+    \   'force'
+    \)
 endfunction "}}}
 
 function! vice#throw_exception(msg) "{{{
@@ -40,49 +37,46 @@ function! vice#validate_type(Value, expected) "{{{
 endfunction "}}}
 
 
-function s:SID()
-    return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
-endfun
-let s:SID_PREFIX = s:SID()
-delfunc s:SID
+
+let s:object = {}
+function! s:object.new() "{{{
+    return deepcopy(self)
+endfunction "}}}
 
 
-let s:meta_object = {
-\   '_type': {},
-\   '_builders': [],
-\}
 
-" Returns function method name.
-function! s:meta_object.method(name) "{{{
-    let real_name = self._class_name . '_method_' . a:name
+" See vice#class() for constructor.
+let s:class_factory = {}
+
+function! s:class_factory.new() "{{{
+    for builder in self._builders
+        call builder.build()
+    endfor
+    return deepcopy(self._object)
+endfunction "}}}
+
+function! s:class_factory.method(name) "{{{
+    let real_name = self._class_name . '_' . a:name
+
+    " The function `real_name` doesn't exist
+    " when .method() is called.
+    " So I need to build self._object at .new()
     let builder = {
+    \   'object': self._object,
+    \   'real_name': '<SNR>' . self._namespace. '_' . real_name,
     \   'method_name': a:name,
-    \   'parent': self._parent_obj,
-    \   'real_name': '<SNR>' . self._caller_sid . '_' . real_name,
     \}
-    function builder.build()
-        let self.parent[self.method_name] = function(self.real_name)
-        unlet self.parent._meta._parent_obj    " Delete cyclic reference.
+    function! builder.build()
+        " NOTE: Currently allows to override.
+        let self.object[self.method_name] = function(self.real_name)
     endfunction
     call add(self._builders, builder)
 
     return 's:' . real_name
 endfunction "}}}
 
-" Create subtype local to vice#new() object.
-" a:1 is base type (if derived).
-function! s:meta_object.subtype(name, ...) "{{{
-    if !has_key(self._type, a:name)
-        let self._type[a:name] = {}
-    endif
-    return self._type[a:name]
-endfunction "}}}
-
-" Build vice#new() object.
-function! s:meta_object.build() "{{{
-    for builder in self._builders
-        call builder.build()
-    endfor
+function! s:class_factory.property(name, Value) "{{{
+    let self._object[a:name] = a:Value    " default value
 endfunction "}}}
 
 
