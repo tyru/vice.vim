@@ -52,12 +52,6 @@ function! s:meta_object.method(name) "{{{
     return 's:' . real_name
 endfunction "}}}
 
-" Create property.
-function! s:meta_object.property(name, Default) "{{{
-    let parent = self._parent_obj
-    let parent[a:name] = a:Default
-endfunction "}}}
-
 " Create subtype local to vice#new() object.
 " a:1 is base type (if derived).
 function! s:meta_object.subtype(name, ...) "{{{
