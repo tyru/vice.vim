@@ -25,12 +25,24 @@ function! s:class.get() "{{{
     return self._str
 endfunction "}}}
 
-function! s:class.set(Value) "{{{
+function! s:class.set(str) "{{{
     call vice#validate_type(a:Value, type(""))
     let self._str = a:Value
 endfunction "}}}
 
-function! s:class.prepend(Value) "{{{
+function! s:class.prepend(str) "{{{
+    call vice#validate_type(a:Value, type(""))
+    let self._str = a:Value . self._str
+endfunction "}}}
+
+function! s:class.append(str) "{{{
+    call vice#validate_type(a:Value, type(""))
+    let self._str .= a:Value
+endfunction "}}}
+
+function! s:class.start_with(str) "{{{
+    call vice#validate_type(a:Value, type(""))
+    return stridx(self._str, a:Value) ==# 0
 endfunction "}}}
 
 let s:RichStr = s:class.new()
