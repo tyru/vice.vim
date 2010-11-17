@@ -17,8 +17,9 @@ function! vice#new(class_name, caller_sid) "{{{
 
     let obj._meta = deepcopy(s:meta_object)
     let obj._meta._class_name = a:class_name
-    let obj._meta._parent_obj = obj    " FIXME: recursive reference.
     let obj._meta._caller_sid = a:caller_sid
+    " This cyclic reference will be deleted after building object.
+    let obj._meta._parent_obj = obj
 
     return obj
 endfunction "}}}
@@ -46,6 +47,7 @@ function! s:meta_object.method(name) "{{{
     \}
     function builder.build()
         let self.parent[self.method_name] = function(self.real_name)
+        unlet self.parent._meta._parent_obj    " Delete cyclic reference.
     endfunction
     call add(self._builders, builder)
 
