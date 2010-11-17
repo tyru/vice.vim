@@ -25,13 +25,12 @@ endfunction "}}}
 
 
 function! vice#class(class_name, sid, ...) "{{{
-    " a:namespace is currently just a SID.
     let obj = deepcopy(s:object)
     return extend(
     \   deepcopy(s:class_factory),
     \   {
     \       '_class_name': a:class_name,
-    \       '_sid' : a:_sid,
+    \       '_sid' : a:sid,
     \       '_object'    : obj,
     \       '_builders'  : [],
     \   },
