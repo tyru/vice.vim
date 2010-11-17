@@ -117,9 +117,11 @@ function! s:class_factory.has(name, ...) "{{{
     if has_key(self, 'where')
         let self._object[a:name].where = self.where
     endif
+
     function! self._object[a:name].get()
         return copy(self._object[self._name])
     endfunction
+
     function! self._object[a:name].set(Value)
         if has_key(self, 'where') && !self.where(a:Value)
             call vice#throw_exception(
