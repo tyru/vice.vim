@@ -3,15 +3,13 @@ let s:class = vice#new('Klass')
 let meta = s:class._meta
 
 " Create Pair type (local to s:buffer_string object).
-function! meta.subtype('Pair').where(Value)
-    return type(a:Value) == type([])
-    \   && len(a:Value) == 2
+function! meta.subtype('Pair', 'List').where(Value)
+    return len(a:Value) == 2
 endfunction
 
 " Create Pair type (local to s:buffer_string object).
-function! meta.subtype('Pair').define()
+function! meta.subtype('Pair', 'List').define()
     function self.where(Value)
-        return type(a:Value) == type([])
-        \   && len(a:Value) == 2
+        return len(a:Value) == 2
     endfunction
 endfunction
