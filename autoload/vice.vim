@@ -153,6 +153,8 @@ function! s:class_factory.has(name, ...) "{{{
         endif
         let self._value = a:Value
     endfunction
+
+    return self
 endfunction "}}}
 
 function! s:class_factory.extends(parent) "{{{
