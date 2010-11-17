@@ -42,32 +42,34 @@ endfunction "}}}
 
 
 function! s:initialize_builtin_classes() "{{{
-    function vice#class('Dict', s:SID_PREFIX).where(Value)
+    let pkg = vice#package('vice.builtins', s:SID_PREFIX)
+
+    function pkg.class('Dict').where(Value)
         return type(a:Value) == type({})
     endfunction
 
-    function vice#class('List', s:SID_PREFIX).where(Value)
+    function pkg.class('List').where(Value)
         return type(a:Value) == type([])
     endfunction
 
-    function vice#class('Num', s:SID_PREFIX).where(Value)
+    function pkg.class('Num').where(Value)
         return type(a:Value) == type(0)
         \   || type(a:Value) == type(0.0)
     endfunction
 
-    function vice#class('Int', s:SID_PREFIX, {'parent': 'Num'}).where(Value)
+    function pkg.class('Int').extends('Num').where(Value)
         return type(a:Value) == type(0)
     endfunction
 
-    function vice#class('Float', s:SID_PREFIX, {'parent': 'Num'}).where(Value)
+    function pkg.class('Float').extends('Num').where(Value)
         return type(a:Value) == type(0.0)
     endfunction
 
-    function vice#class('Str', s:SID_PREFIX).where(Value)
+    function pkg.class('Str').where(Value)
         return type(a:Value) == type("")
     endfunction
 
-    function vice#class('Fn', s:SID_PREFIX).where(Value)
+    function pkg.class('Fn').where(Value)
         return type(a:Value) == type(function('tr'))
     endfunction
 endfunction "}}}
