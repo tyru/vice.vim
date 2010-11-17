@@ -24,14 +24,14 @@ function! s:package.class(name) "{{{
 endfunction "}}}
 
 
-function! vice#class(class_name, namespace, ...) "{{{
+function! vice#class(class_name, sid, ...) "{{{
     " a:namespace is currently just a SID.
     let obj = deepcopy(s:object)
     return extend(
     \   deepcopy(s:class_factory),
     \   {
     \       '_class_name': a:class_name,
-    \       '_namespace' : a:namespace,
+    \       '_sid' : a:_sid,
     \       '_object'    : obj,
     \       '_builders'  : [],
     \   },
@@ -111,7 +111,7 @@ function! s:class_factory.method(name) "{{{
     " So I need to build self._object at .new()
     let builder = {
     \   'object': self._object,
-    \   'real_name': '<SNR>' . self._namespace. '_' . real_name,
+    \   'real_name': '<SNR>' . self._sid . '_' . real_name,
     \   'method_name': a:name,
     \}
     function! builder.build()
