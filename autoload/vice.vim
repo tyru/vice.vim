@@ -24,10 +24,6 @@ endfunction "}}}
 function! vice#class(class_name, namespace, ...) "{{{
     " a:namespace is currently just a SID.
     let obj = deepcopy(s:object)
-    if a:0 && has_key(a:1, 'parent')
-        " Currently `derive` means just doing extend().
-        call extend(obj, a:1.parent, 'keep')
-    endif
     return extend(
     \   deepcopy(s:class_factory),
     \   {
@@ -151,6 +147,17 @@ function! s:class_factory.has(name, ...) "{{{
         endif
         let self._value = a:Value
     endfunction
+endfunction "}}}
+
+function! s:class_factory.extends(parent) "{{{
+    let builder = {'parent': a:parent, 'object': self._object}
+    function builder.build()
+        " Current inheritance implementation is just doing extend().
+        call extend(self.object, self.parent, 'keep')
+    endfunction
+    call add(self._builders, builder)
+
+    return self
 endfunction "}}}
 
 
