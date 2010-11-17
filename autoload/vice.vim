@@ -7,7 +7,7 @@ set cpo&vim
 " }}}
 
 
-let s:global_traits = {}
+let s:builtin_types = {}
 
 
 function! vice#package(pkg, sid) "{{{
@@ -43,35 +43,40 @@ function! vice#throw_exception(msg) "{{{
 endfunction "}}}
 
 
-function! s:initialize_builtin_classes() "{{{
-    let pkg = vice#package('vice.builtins', s:SID_PREFIX)
-
-    function pkg.class('Dict').where(Value)
+function! s:initialize_builtin_types() "{{{
+    let s:builtin_types['Dict[`a]'] = {}
+    function s:builtin_types['Dict[`a]'].where(Value)
         return type(a:Value) == type({})
     endfunction
 
-    function pkg.class('List').where(Value)
+    let s:builtin_types['List[`a]'] = {}
+    function s:builtin_types['List[`a]'].where(Value)
         return type(a:Value) == type([])
     endfunction
 
-    function pkg.class('Num').where(Value)
+    let s:builtin_types['Num'] = {}
+    function s:builtin_types['Num'].where(Value)
         return type(a:Value) == type(0)
         \   || type(a:Value) == type(0.0)
     endfunction
 
-    function pkg.class('Int').extends('Num').where(Value)
+    let s:builtin_types['Int'] = {'parent': 'Num'}
+    function s:builtin_types['Int'].where(Value)
         return type(a:Value) == type(0)
     endfunction
 
-    function pkg.class('Float').extends('Num').where(Value)
+    let s:builtin_types['Float'] = {'parent': 'Num'}
+    function s:builtin_types['Float'].where(Value)
         return type(a:Value) == type(0.0)
     endfunction
 
-    function pkg.class('Str').where(Value)
+    let s:builtin_types['Str'] = {}
+    function s:builtin_types['Str'].where(Value)
         return type(a:Value) == type("")
     endfunction
 
-    function pkg.class('Fn').where(Value)
+    let s:builtin_types['Fn'] = {}
+    function s:builtin_types['Fn'].where(Value)
         return type(a:Value) == type(function('tr'))
     endfunction
 endfunction "}}}
