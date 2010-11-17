@@ -114,10 +114,17 @@ endfunction "}}}
 
 function! s:class_factory.has(name, ...) "{{{
     let self._object[a:name] = {'_name': a:name}
+    if has_key(self, 'where')
+        let self._object[a:name].where = self.where
+    endif
     function! self._object[a:name].get()
         return copy(self._object[self._name])
     endfunction
     function! self._object[a:name].set(Value)
+        if has_key(self, 'where') && !self.where(a:Value)
+            call vice#throw_exception(
+            \   ':' . self._name . ' : received invalid type.')
+        endif
         let self._object[self._name] = a:Value
     endfunction
 endfunction "}}}
