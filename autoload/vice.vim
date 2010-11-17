@@ -74,6 +74,11 @@ function! s:initialize_builtin_classes() "{{{
     endfunction
 endfunction "}}}
 
+function! s:parse_class_name(class_name) "{{{
+    let _ = split(a:class_name, '\.')
+    return [_[:-2], _[-1]]
+endfunction "}}}
+
 
 
 let s:object = {}
@@ -94,7 +99,9 @@ function! s:class_factory.new() "{{{
 endfunction "}}}
 
 function! s:class_factory.method(name) "{{{
-    let real_name = self._class_name . '_' . a:name
+    " NOTE: I don't use package name currently.
+    let [__unused__, class_name] = s:parse_class_name(self._class_name)
+    let real_name = class_name . '_' . a:name
 
     " The function `real_name` doesn't exist
     " when .method() is called.
