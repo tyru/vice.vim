@@ -119,7 +119,7 @@ function! s:class_factory.has(name, ...) "{{{
     endif
 
     function! self._object[a:name].get()
-        return copy(self[self._name])
+        return copy(self._value)
     endfunction
 
     function! self._object[a:name].set(Value)
@@ -127,7 +127,7 @@ function! s:class_factory.has(name, ...) "{{{
             call vice#throw_exception(
             \   ':' . self._name . ' : received invalid type.')
         endif
-        let self[self._name] = a:Value
+        let self._value = a:Value
     endfunction
 endfunction "}}}
 
