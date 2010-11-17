@@ -7,14 +7,19 @@ set cpo&vim
 " }}}
 
 
-function! vice#class(class_name, namespace) "{{{
+function! vice#class(class_name, namespace, ...) "{{{
     " a:namespace is currently just a SID.
+    let obj = deepcopy(s:object)
+    if a:0 && has_key(a:1, 'parent')
+        " Currently `derive` means just doing extend().
+        call extend(obj, a:1.parent, 'keep')
+    endif
     return extend(
     \   deepcopy(s:class_factory),
     \   {
     \       '_class_name': a:class_name,
     \       '_namespace' : a:namespace,
-    \       '_object'    : deepcopy(s:object),
+    \       '_object'    : obj,
     \       '_builders'  : [],
     \   },
     \   'force'
