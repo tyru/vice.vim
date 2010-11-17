@@ -7,6 +7,20 @@ set cpo&vim
 " }}}
 
 
+function! vice#package(pkg, sid) "{{{
+    return extend(
+    \   deepcopy(s:package),
+    \   {'_pkg': a:pkg, '_sid': a:sid},
+    \   'force'
+    \)
+endfunction "}}}
+
+let s:package = {}
+function! s:package.class(name) "{{{
+    return vice#class(self._pkg . '.' . a:name, self._sid)
+endfunction "}}}
+
+
 function! vice#class(class_name, namespace, ...) "{{{
     " a:namespace is currently just a SID.
     let obj = deepcopy(s:object)
