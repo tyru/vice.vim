@@ -100,7 +100,7 @@ let s:class_factory = {}
 
 function! s:class_factory.new() "{{{
     for builder in self._builders
-        call builder.build()
+        call builder.build(self._object)
     endfor
     return deepcopy(self._object)
 endfunction "}}}
@@ -114,13 +114,12 @@ function! s:class_factory.method(name) "{{{
     " when .method() is called.
     " So I need to build self._object at .new()
     let builder = {
-    \   'object': self._object,
     \   'real_name': '<SNR>' . self._sid . '_' . real_name,
     \   'method_name': a:name,
     \}
-    function! builder.build()
+    function! builder.build(object)
         " NOTE: Currently allows to override.
-        let self.object[self.method_name] = function(self.real_name)
+        let a:object[self.method_name] = function(self.real_name)
     endfunction
     call add(self._builders, builder)
 
@@ -157,10 +156,10 @@ function! s:class_factory.has(name, ...) "{{{
 endfunction "}}}
 
 function! s:class_factory.extends(parent) "{{{
-    let builder = {'parent': a:parent, 'object': self._object}
-    function builder.build()
+    let builder = {'parent': a:parent}
+    function builder.build(object)
         " Current inheritance implementation is just doing extend().
-        call extend(self.object, self.parent, 'keep')
+        call extend(a:object, self.parent, 'keep')
     endfunction
     call add(self._builders, builder)
 
