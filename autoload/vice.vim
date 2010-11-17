@@ -52,15 +52,10 @@ function! s:meta_object.method(name) "{{{
     return 's:' . real_name
 endfunction "}}}
 
-" Create member (more primitive than property).
-function! s:meta_object.member(name, Default) "{{{
+" Create property.
+function! s:meta_object.property(name, Default) "{{{
     let parent = self._parent_obj
     let parent[a:name] = a:Default
-endfunction "}}}
-
-" Create property.
-function! s:meta_object.property(name, ...) "{{{
-    " TODO
 endfunction "}}}
 
 " Create subtype local to vice#new() object.
