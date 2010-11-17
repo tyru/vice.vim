@@ -24,6 +24,21 @@ function! vice#new(class_name, caller_sid) "{{{
     return obj
 endfunction "}}}
 
+function! vice#throw_exception(msg) "{{{
+    throw 'vice: ' . a:msg
+endfunction "}}}
+
+function! vice#validate_type(Value, expected) "{{{
+    let type_id = type(a:Value)
+    if type_id !=# a:expected
+        call vice#throw_exception(
+        \   'type validation failed: '
+        \   . 'expected (' . type_id . '), '
+        \   . 'got (' . a:expected . ')'
+        \)
+    endif
+endfunction "}}}
+
 
 function s:SID()
     return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
