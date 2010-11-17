@@ -112,8 +112,14 @@ function! s:class_factory.method(name) "{{{
     return 's:' . real_name
 endfunction "}}}
 
-function! s:class_factory.property(name, Value) "{{{
-    let self._object[a:name] = a:Value    " default value
+function! s:class_factory.has(name, ...) "{{{
+    let self._object[a:name] = {'_name': a:name}
+    function! self._object[a:name].get()
+        return copy(self._object[self._name])
+    endfunction
+    function! self._object[a:name].set(Value)
+        let self._object[self._name] = a:Value
+    endfunction
 endfunction "}}}
 
 
