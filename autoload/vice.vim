@@ -52,7 +52,7 @@ function! vice#validate_type(Value, expected) "{{{
 endfunction "}}}
 
 
-function! s:initialize_builtin_types() "{{{
+function! s:initialize_builtin_classes() "{{{
     function vice#class('Dict', s:SID_PREFIX).where(Value)
         return type(a:Value) == type({})
     endfunction
