@@ -1,9 +1,64 @@
-# Trait (Perl's role-like feature)
-- Trait can force implementer's class to implement some methods.
-- Trait can *require* some methods which
-  must be implemented by implementer's class.
 
-# Type constraints
+# Inheritance
+
+    " vice.vim needs to know defined SID.
+    function s:SID()
+        return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+    endfunction
+    " 'generate_stub' is defaultly 0 for some reasons.
+    " you can omit the vice#class()'s 3rd argument
+    " if you like default one.
+    let s:VICE_OPTIONS = {'generate_stub': 1}
+
+
+    " Trait
+    "
+    " TODO: currently no way to require methods to implement,
+    " in this case, `self.message()`.
+
+    let s:Printable = vice#class('Printable', s:SID(), s:VICE_OPTIONS)
+    function {s:Printable.method('print'))}()
+        echon self.message()
+    endfunction
+    function {s:Printable.method('say'))}()
+        echo self.message()
+    endfunction
+
+
+    let s:Parent = vice#class('Parent', s:SID(), s:VICE_OPTIONS)
+    function {s:Parent.method('message')}()
+        return 'parent'
+    endfunction
+
+
+    let s:Child = vice#class('Child', s:SID(), s:VICE_OPTIONS)
+    call s:Child.extends(s:Parent)
+    function {s:Child.method('message')}()
+        return 'child'
+    endfunction
+
+
+    parent = s:Parent.new()
+    " "parent"
+    echo parent.print()
+    " "parent" with newline
+    echo parent.say()
+
+    child = s:Child.new()
+    " "child"
+    echo child.print()
+    " "child" with newline
+    echo child.say()
+
+# TODO
+# Trait (Perl's role-like feature)
+NOTE: The similar thing is possible with .extends(),
+but traits can *require* some methods to implement
+
+- Trait can force implementer's class to implement some methods.
+- Trait can *require* some methods to implement
+
+## Type constraints
 - .where()
 - when it should be called?
     - How do other languages' system do that?
@@ -24,20 +79,6 @@
         endfunction
     endfunction
 
-# Inheritance
-
-    let s:class = vice#class(
-        'Klass',
-        s:SID_PREFIX,
-        {'parent': vice#class('Parent', s:SID_PREFIX)}
-    )
-
 # etc.
-- Property is subroutine in Moose. vice should follow that.
-    - Because it's more scalable.
-    - ...but it can't in Vim script!
-    - because function is not first class object.
-- Moose's before(), after()
+- Moose(Perl)'s before(), after()
     - override (or more like Aspect-Oriented?)
-- Separate `s:class_factory` to factory class (creating instance)
-  and builder class (building class design).
