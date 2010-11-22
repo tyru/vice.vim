@@ -98,13 +98,13 @@ let s:Builder = {
 \   '_add_builder': s:get_local_func('Builder__add_builder'),
 \}
 " }}}
-" s:MethodMaker {{{
+" s:MethodManager {{{
 " Abstruct class.
-" NOTE: s:MethodMaker needs:
+" NOTE: s:MethodManager needs:
 " - ._class_name
 " - ._builders
 
-function! s:MethodMaker_method(method_name, ...) dict "{{{
+function! s:MethodManager_method(method_name, ...) dict "{{{
     let options = a:0 ? a:1 : {}
     let class_name = self._class_name
     let real_name = class_name . '_' . a:method_name
@@ -144,11 +144,11 @@ function! s:MethodMaker_method(method_name, ...) dict "{{{
     return 's:' . real_name
 endfunction "}}}
 
-function! s:MethodMaker__has_method(method_name) dict "{{{
+function! s:MethodManager__has_method(method_name) dict "{{{
     return has_key(self._methods, a:method_name)
 endfunction "}}}
 
-function! s:MethodMaker__parent_has_method(method_name) dict "{{{
+function! s:MethodManager__parent_has_method(method_name) dict "{{{
     for super in self._super
         if super._has_method(a:method_name)
             return 1
@@ -160,11 +160,11 @@ function! s:MethodMaker__parent_has_method(method_name) dict "{{{
     return 0
 endfunction "}}}
 
-function! s:MethodMaker__get_method(method_name, ...) dict "{{{
+function! s:MethodManager__get_method(method_name, ...) dict "{{{
     return call('get', [self._methods, a:method_name] + (a:0 ? [a:1] : []))
 endfunction "}}}
 
-function! s:MethodMaker__parent_get_method(method_name, ...) dict "{{{
+function! s:MethodManager__parent_get_method(method_name, ...) dict "{{{
     let not_found = {}
     for super in self._super
         if super._has_method(a:method_name)
@@ -178,7 +178,7 @@ function! s:MethodMaker__parent_get_method(method_name, ...) dict "{{{
     return a:0 ? a:1 : 0
 endfunction "}}}
 
-function! s:MethodMaker__call_parent_method(this, method_name, args) dict "{{{
+function! s:MethodManager__call_parent_method(this, method_name, args) dict "{{{
     " NOTE: the 1st arg is a:this.
     let not_found = {}
     let method = self._parent_get_method(a:method_name, not_found)
@@ -195,16 +195,16 @@ function! s:MethodMaker__call_parent_method(this, method_name, args) dict "{{{
     \       . " who has '" . a:method_name . "'."
 endfunction "}}}
 
-let s:MethodMaker = {
+let s:MethodManager = {
 \   '_sid': -1,
 \   '_opt_generate_stub': 0,
 \   '_methods': {},
-\   'method': s:get_local_func('MethodMaker_method'),
-\   '_has_method': s:get_local_func('MethodMaker__has_method'),
-\   '_parent_has_method': s:get_local_func('MethodMaker__parent_has_method'),
-\   '_get_method': s:get_local_func('MethodMaker__get_method'),
-\   '_parent_get_method': s:get_local_func('MethodMaker__parent_get_method'),
-\   '_call_parent_method': s:get_local_func('MethodMaker__call_parent_method'),
+\   'method': s:get_local_func('MethodManager_method'),
+\   '_has_method': s:get_local_func('MethodManager__has_method'),
+\   '_parent_has_method': s:get_local_func('MethodManager__parent_has_method'),
+\   '_get_method': s:get_local_func('MethodManager__get_method'),
+\   '_parent_get_method': s:get_local_func('MethodManager__parent_get_method'),
+\   '_call_parent_method': s:get_local_func('MethodManager__call_parent_method'),
 \}
 " }}}
 " s:Extendable {{{
@@ -339,7 +339,7 @@ let s:Class = {
 \   'can': s:get_local_func('Class_can'),
 \}
 call extend(s:Class, s:Builder, 'error')
-call extend(s:Class, s:MethodMaker, 'error')
+call extend(s:Class, s:MethodManager, 'error')
 call extend(s:Class, s:Extendable, 'error')
 " Implement some properties to satisfy abstruct parents.
 let s:Class._builders = []
@@ -359,7 +359,7 @@ let s:SkeletonObject = {
 
 let s:Trait = {}
 call extend(s:Trait, s:Builder, 'error')
-call extend(s:Trait, s:MethodMaker, 'error')
+call extend(s:Trait, s:MethodManager, 'error')
 call extend(s:Trait, s:Extendable, 'error')
 " Implement some properties to satisfy abstruct parents.
 let s:Trait._builders = []
@@ -369,7 +369,7 @@ let s:Trait._class_name = ''
 " :unlet for memory.
 " Those classes' methods/properties are copied already.
 unlet s:Builder
-unlet s:MethodMaker
+unlet s:MethodManager
 unlet s:Extendable
 
 
