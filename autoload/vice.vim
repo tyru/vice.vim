@@ -263,6 +263,12 @@ let s:Trait._builders = []
 let s:Trait._class_name = ''
 " }}}
 
+" :unlet for memory.
+" Those classes' methods/properties are copied already.
+unlet s:Builder
+unlet s:MethodMaker
+unlet s:Extendable
+
 
 " TODO: Type constraints
 let s:builtin_types = {}
