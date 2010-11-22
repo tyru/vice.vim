@@ -40,16 +40,16 @@ function! s:ClassFactory.new() "{{{
     return deepcopy(self._object)
 endfunction "}}}
 
-function! s:ClassFactory.method(name) "{{{
+function! s:ClassFactory.method(method_name) "{{{
     let class_name = self._class_name
-    let real_name = class_name . '_' . a:name
+    let real_name = class_name . '_' . a:method_name
 
     " The function `real_name` doesn't exist
     " when .method() is called.
     " So I need to build self._object at .new()
     let builder = {
     \   'real_name': '<SNR>' . self._sid . '_' . real_name,
-    \   'method_name': a:name,
+    \   'method_name': a:method_name,
     \}
     function! builder.build(object)
         " NOTE: Currently allows to override.
