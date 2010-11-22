@@ -74,7 +74,7 @@ endfunction "}}}
 
 function! s:Builder_build() dict "{{{
     for builder in self._builders
-        call builder.build(self._object)
+        call builder.build(self)
     endfor
     let self._builders = []
 endfunction "}}}
@@ -101,19 +101,18 @@ function! s:MethodMaker_method(method_name) dict "{{{
     let builder = {
     \   'real_name': '<SNR>' . self._sid . '_' . real_name,
     \   'method_name': a:method_name,
-    \   'do_generate_stub': self._opt_generate_stub,
     \}
-    function! builder.build(object)
+    function! builder.build(this)
         " NOTE: Currently allows to override.
-        if self.do_generate_stub
+        if a:this._opt_generate_stub
             " Create a stub for `self.real_name`.
             execute join([
-            \   'function! a:object[' . string(self.method_name) . '](...)',
+            \   'function! a:this._object[' . string(self.method_name) . '](...)',
             \       'return call(' . string(self.real_name) . ', [self] + a:000)',
             \   'endfunction',
             \], "\n")
         else
-            let a:object[self.method_name] = function(self.real_name)
+            let a:this._object[self.method_name] = function(self.real_name)
         endif
     endfunction
     call add(self._builders, builder)
@@ -134,14 +133,14 @@ let s:MethodMaker = {
 " - ._builders
 
 function! s:Extendable_extends(parent_factory) dict "{{{
-    let builder = {'parent': a:parent_factory, 'super': self._super}
-    function builder.build(object)
+    let builder = {'parent': a:parent_factory}
+    function builder.build(this)
         " Build all methods.
         call self.parent.build()
         " Merge missing methods from parent class.
-        call extend(a:object, self.parent._object, 'keep')
+        call extend(a:this._object, self.parent._object, 'keep')
         " Add it to the super classes.
-        call add(self.super, self.parent._object)
+        call add(a:this._super, self.parent._object)
     endfunction
     call add(self._builders, builder)
 
@@ -177,17 +176,17 @@ function! s:Class_accessor(accessor_name, Value) dict "{{{
     \   'name': a:accessor_name,
     \   'value': a:Value,
     \}
-    function builder.build(object)
+    function builder.build(this)
         let acc = '_accessor_' . self.name
         execute join([
-        \   'function a:object[' . string(self.name) . '](...)',
+        \   'function a:this._object[' . string(self.name) . '](...)',
         \       'if a:0',
         \           'let self[' . string(acc) . '] = a:1',
         \       'endif',
         \       'return self[' . string(acc) . ']',
         \   'endfunction',
         \], "\n")
-        let a:object[acc] = self.value
+        let a:this._object[acc] = self.value
     endfunction
     call add(self._builders, builder)
 endfunction "}}}
@@ -197,8 +196,8 @@ function! s:Class_property(property_name, Value) dict "{{{
     \   'name': a:property_name,
     \   'value': a:Value,
     \}
-    function builder.build(object)
-        let a:object[self.name] = extend(
+    function builder.build(this)
+        let a:this._object[self.name] = extend(
         \   deepcopy(s:SkeletonProperty),
         \   {'_value': self.value},
         \   'error'
@@ -224,8 +223,8 @@ let s:SkeletonProperty = {
 
 function! s:Class_attribute(attribute_name, Value) dict "{{{
     let builder = {'name': a:attribute_name, 'value': a:Value}
-    function builder.build(object)
-        let a:object[self.name] = self.value
+    function builder.build(this)
+        let a:this._object[self.name] = self.value
     endfunction
     call add(self._builders, builder)
 endfunction "}}}
