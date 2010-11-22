@@ -29,8 +29,8 @@ function! vice#class(class_name, sid, ...) "{{{
     \       '_object': obj,
     \       '_builders': [],
     \       '_super': [],
-    \       '_opt_generate_stub': get(options, 'generate_stub', 1),
-    \       '_opt_fn_property': get(options, 'fn_property', 1),
+    \       '_opt_generate_stub': get(options, 'generate_stub', 0),
+    \       '_opt_fn_property': get(options, 'fn_property', 0),
     \   },
     \   'force'
     \)
