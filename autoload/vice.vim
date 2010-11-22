@@ -46,6 +46,7 @@ endfunction "}}}
 
 " }}}
 
+" Implement {{{
 
 function s:SID()
     return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
@@ -115,18 +116,6 @@ let s:MethodMaker = {
 \   'method': s:get_local_func('MethodMaker_method'),
 \}
 " }}}
-
-
-" s:SkeletonObject {{{
-function! s:SkeletonObject_clone() dict "{{{
-    return deepcopy(self)
-endfunction "}}}
-
-let s:SkeletonObject = {
-\   'clone': s:get_local_func('SkeletonObject_clone'),
-\}
-" }}}
-
 " s:Class {{{
 " See vice#class() for the constructor.
 
@@ -235,8 +224,15 @@ call extend(s:Class, s:Builder, 'error')
 call extend(s:Class, s:MethodMaker, 'error')
 let s:Class._builders = []    " to satisfy two abstruct parents.
 " }}}
+" s:SkeletonObject {{{
+function! s:SkeletonObject_clone() dict "{{{
+    return deepcopy(self)
+endfunction "}}}
 
-
+let s:SkeletonObject = {
+\   'clone': s:get_local_func('SkeletonObject_clone'),
+\}
+" }}}
 " s:Trait {{{
 " vice#trait() for the constructor.
 
@@ -286,6 +282,8 @@ function! s:initialize_builtin_types() "{{{
         return type(a:Value) == type(function('tr'))
     endfunction
 endfunction "}}}
+
+" }}}
 
 
 " Restore 'cpoptions' {{{
