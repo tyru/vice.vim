@@ -116,8 +116,11 @@ endfunction "}}}
 function! s:Class_extends(parent_factory) dict "{{{
     let builder = {'parent': a:parent_factory, 'super': self._super}
     function builder.build(object)
-        call self.parent.build()    " Build all methods.
+        " Build all methods.
+        call self.parent.build()
+        " Merge missing methods from parent class.
         call extend(a:object, self.parent._object, 'keep')
+        " Add it to the super classes.
         call add(self.super, self.parent._object)
     endfunction
     call add(self._builders, builder)
