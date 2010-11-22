@@ -38,7 +38,7 @@ endfunction "}}}
 
 " s:SkeletonObject {{{
 let s:SkeletonObject = {}
-function! s:SkeletonObject.new() "{{{
+function! s:SkeletonObject.clone() "{{{
     return deepcopy(self)
 endfunction "}}}
 " }}}
