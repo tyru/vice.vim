@@ -184,6 +184,13 @@ let s:Class = {
 " }}}
 
 
+function! vice#trait(...) "{{{
+    let trait = call('vice#class', a:000)
+    unlet trait.new    " Trait cannot be instantiated.
+    return trait
+endfunction "}}}
+
+
 " TODO: Type constraints
 let s:builtin_types = {}
 
