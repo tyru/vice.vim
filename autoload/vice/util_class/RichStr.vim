@@ -15,9 +15,11 @@ function! vice#util_class#RichStr#new(...) "{{{
 endfunction "}}}
 
 
-function s:SID()
+function! s:SID()
     return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
 endfun
+
+
 let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 0})
 
 
@@ -41,6 +43,33 @@ endfunction "}}}
 
 function! {s:RichStr.method('start_with')}(this, str) "{{{
     return stridx(a:this._str.get(), a:str) ==# 0
+endfunction "}}}
+
+
+" {'fn_property': 1}
+let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 1})
+
+
+call s:RichStr.property('_str', '')
+
+function! {s:RichStr.method('get')}(this) "{{{
+    return a:this._str()
+endfunction "}}}
+
+function! {s:RichStr.method('set')}(this, str) "{{{
+    return a:this._str(a:str)
+endfunction "}}}
+
+function! {s:RichStr.method('prepend')}(this, str) "{{{
+    return a:this._str(a:str . a:this._str())
+endfunction "}}}
+
+function! {s:RichStr.method('append')}(this, str) "{{{
+    return a:this._str(a:this._str() . a:str)
+endfunction "}}}
+
+function! {s:RichStr.method('start_with')}(this, str) "{{{
+    return stridx(a:this._str(), a:str) ==# 0
 endfunction "}}}
 
 
