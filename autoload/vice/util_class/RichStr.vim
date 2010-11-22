@@ -18,7 +18,7 @@ endfunction "}}}
 function s:SID()
     return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
 endfun
-let s:RichStr = vice#class('RichStr', s:SID())
+let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 0})
 
 
 call s:RichStr.property('_str', '')
