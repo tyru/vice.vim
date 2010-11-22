@@ -11,13 +11,13 @@ set cpo&vim
 
 function! vice#class(class_name, sid, ...) "{{{
     let options = a:0 ? a:1 : {}
-    let obj = deepcopy(s:SkeletonObject)
     return extend(
     \   deepcopy(s:Class),
     \   {
     \       '_class_name': a:class_name,
     \       '_sid': a:sid,
-    \       '_object': (get(options, 'empty_object', 0) ? {} : obj),
+    \       '_object': (get(options, 'empty_object', 0) ?
+    \                       {} : deepcopy(s:SkeletonObject)),
     \       '_builders': [],
     \       '_super': [],
     \       '_opt_generate_stub': get(options, 'generate_stub', 0),
