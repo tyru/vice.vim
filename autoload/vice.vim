@@ -26,7 +26,7 @@ function! vice#class(class_name, sid, ...) "{{{
     \   {
     \       '_class_name': a:class_name,
     \       '_sid': a:sid,
-    \       '_object': obj,
+    \       '_object': (get(options, 'empty_object', 0) ? {} : obj),
     \       '_builders': [],
     \       '_super': [],
     \       '_opt_generate_stub': get(options, 'generate_stub', 0),
