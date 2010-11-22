@@ -99,7 +99,8 @@ let s:Builder = {
 " - ._class_name
 " - ._builders
 
-function! s:MethodMaker_method(method_name) dict "{{{
+function! s:MethodMaker_method(method_name, ...) dict "{{{
+    let options = a:0 ? a:1 : {}
     let class_name = self._class_name
     let real_name = class_name . '_' . a:method_name
 
@@ -109,9 +110,17 @@ function! s:MethodMaker_method(method_name) dict "{{{
     let builder = {
     \   'real_name': '<SNR>' . self._sid . '_' . real_name,
     \   'method_name': a:method_name,
+    \   'options': options,
     \}
     function! builder.build(this)
-        " NOTE: Currently allows to override.
+        if has_key(a:this._object, self.method_name)
+        \   && !get(self.options, 'override', 0)
+            throw "vice: Class '" . a:this._class_name . "'"
+            \       . ": method '" . self.method_name . "' is "
+            \       . "already defined, please specify"
+            \       . " to .method(" . string(self.method_name) . ", "
+            \       . "`{'override': 1}`) to override."
+        endif
         if a:this._opt_generate_stub
             " Create a stub for `self.real_name`.
             execute join([
