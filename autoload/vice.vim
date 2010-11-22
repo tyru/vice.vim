@@ -120,15 +120,11 @@ let s:MethodMaker = {
 \   'method': s:get_local_func('MethodMaker_method'),
 \}
 " }}}
-" s:Class {{{
-" See vice#class() for the constructor.
+" s:Extendable {{{
+" Abstruct class.
+" NOTE: Needs List variable `self._builders`.
 
-function! s:Class_new() dict "{{{
-    call self.build()
-    return deepcopy(self._object)
-endfunction "}}}
-
-function! s:Class_extends(parent_factory) dict "{{{
+function! s:Extendable_extends(parent_factory) dict "{{{
     let builder = {'parent': a:parent_factory, 'super': self._super}
     function builder.build(object)
         " Build all methods.
@@ -143,7 +139,7 @@ function! s:Class_extends(parent_factory) dict "{{{
     return self
 endfunction "}}}
 
-function! s:Class_super(...) dict "{{{
+function! s:Extendable_super(...) dict "{{{
     if len(self._super) == 1
         return self._super[0]
     endif
@@ -156,6 +152,19 @@ function! s:Class_super(...) dict "{{{
         endfor
     endif
     return self._super
+endfunction "}}}
+
+let s:Extendable = {
+\   'extends': s:get_local_func('Extendable_extends'),
+\   'super': s:get_local_func('Extendable_super'),
+\}
+" }}}
+" s:Class {{{
+" See vice#class() for the constructor.
+
+function! s:Class_new() dict "{{{
+    call self.build()
+    return deepcopy(self._object)
 endfunction "}}}
 
 function! s:Class_property(property_name, Value) dict "{{{
@@ -216,8 +225,6 @@ endfunction "}}}
 
 let s:Class = {
 \   'new': s:get_local_func('Class_new'),
-\   'extends': s:get_local_func('Class_extends'),
-\   'super': s:get_local_func('Class_super'),
 \   'property': s:get_local_func('Class_property'),
 \   'attribute': s:get_local_func('Class_attribute'),
 \   'can': s:get_local_func('Class_can'),
@@ -226,7 +233,8 @@ let s:Class = {
 \}
 call extend(s:Class, s:Builder, 'error')
 call extend(s:Class, s:MethodMaker, 'error')
-let s:Class._builders = []    " to satisfy two abstruct parents.
+call extend(s:Class, s:Extendable, 'error')
+let s:Class._builders = []    " to satisfy 3 abstruct parents.
 " }}}
 " s:SkeletonObject {{{
 function! s:SkeletonObject_clone() dict "{{{
@@ -243,7 +251,8 @@ let s:SkeletonObject = {
 let s:Trait = {}
 call extend(s:Trait, s:Builder, 'error')
 call extend(s:Trait, s:MethodMaker, 'error')
-let s:Trait._builders = []    " to satisfy two abstruct parents.
+call extend(s:Trait, s:Extendable, 'error')
+let s:Trait._builders = []    " to satisfy 3 abstruct parents.
 " }}}
 
 
