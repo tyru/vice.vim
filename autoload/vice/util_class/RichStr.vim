@@ -9,41 +9,39 @@ set cpo&vim
 
 function! vice#util_class#RichStr#new(...) "{{{
     let default_value = a:0 ? a:1 : ''
-    return extend(
-    \   s:RichStr.new(),
-    \   {'_str': default_value},
-    \   'force'
-    \)
+    let obj = s:RichStr.new()
+    call obj.set(default_value)
+    return obj
 endfunction "}}}
 
 
-let s:class = vice#class('RichStr', s:SID_PREFIX)
+function s:SID()
+    return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+endfun
+let s:RichStr = vice#class('RichStr', s:SID())
 
-call s:class.property('_str', '')
 
-function! s:class.get() "{{{
-    return self._str.get()
+call s:RichStr.property('_str', '')
+
+function! {s:RichStr.method('get')}(this) "{{{
+    return a:this._str.get()
 endfunction "}}}
 
-function! s:class.set(str) "{{{
-    let self._str.set(a:Value)
+function! {s:RichStr.method('set')}(this, str) "{{{
+    return a:this._str.set(a:str)
 endfunction "}}}
 
-function! s:class.prepend(str) "{{{
-    let self._str.set(a:Value . self._str.get())
+function! {s:RichStr.method('prepend')}(this, str) "{{{
+    return a:this._str.set(a:str . a:this._str.get())
 endfunction "}}}
 
-function! s:class.append(str) "{{{
-    let self._str.set(self._str.get() . a:Value)
+function! {s:RichStr.method('append')}(this, str) "{{{
+    return a:this._str.set(a:this._str.get() . a:str)
 endfunction "}}}
 
-function! s:class.start_with(str) "{{{
-    call vice#validate_type(a:Value, type(""))
-    return stridx(self._str.get(), a:Value) ==# 0
+function! {s:RichStr.method('start_with')}(this, str) "{{{
+    return stridx(a:this._str.get(), a:str) ==# 0
 endfunction "}}}
-
-let s:RichStr = s:class.new()
-unlet s:class
 
 
 " Restore 'cpoptions' {{{
