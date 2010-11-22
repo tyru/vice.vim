@@ -19,6 +19,8 @@ endfunction "}}}
 
 
 " s:Builder "{{{
+" Abstruct class.
+" NOTE: Needs List variable `self._builders`.
 
 function! s:Builder_build() dict "{{{
     for builder in self._builders
@@ -29,11 +31,12 @@ endfunction "}}}
 
 let s:Builder = {
 \   '_object': {},
-\   '_builders': [],
 \   'build': s:get_local_func('Builder_build'),
 \}
 " }}}
 " s:MethodMaker {{{
+" Abstruct class.
+" NOTE: Needs List variable `self._builders`.
 
 function! s:MethodMaker_method(method_name) dict "{{{
     let class_name = self._class_name
@@ -69,7 +72,6 @@ let s:MethodMaker = {
 \   '_class_name': '',
 \   '_sid': -1,
 \   '_opt_generate_stub': 0,
-\   '_builders': [],
 \   'method': s:get_local_func('MethodMaker_method'),
 \}
 " }}}
@@ -201,6 +203,7 @@ let s:Class = {
 \}
 call extend(s:Class, s:Builder, 'error')
 call extend(s:Class, s:MethodMaker, 'error')
+let s:Class._builders = []    " to satisfy two abstruct parents.
 " }}}
 
 
