@@ -7,41 +7,91 @@ set cpo&vim
 " }}}
 
 
-let s:builtin_types = {}
-
-
-function! vice#package(pkg, sid) "{{{
+function! vice#class(class_name, sid) "{{{
+    let obj = deepcopy(s:SkeletonObject)
     return extend(
-    \   deepcopy(s:package),
-    \   {'_pkg': a:pkg, '_sid': a:sid},
-    \   'force'
-    \)
-endfunction "}}}
-
-let s:package = {}
-function! s:package.class(name) "{{{
-    return vice#class(self._pkg . '.' . a:name, self._sid)
-endfunction "}}}
-
-
-function! vice#class(class_name, sid, ...) "{{{
-    let obj = deepcopy(s:skeleton_object)
-    return extend(
-    \   deepcopy(s:class_factory),
+    \   deepcopy(s:ClassFactory),
     \   {
     \       '_class_name': a:class_name,
-    \       '_sid' : a:sid,
-    \       '_object'    : obj,
-    \       '_builders'  : [],
+    \       '_sid': a:sid,
+    \       '_object': obj,
+    \       '_builders': [],
+    \       '_super': [],
     \   },
     \   'force'
     \)
 endfunction "}}}
 
-function! vice#throw_exception(msg) "{{{
-    throw 'vice: ' . a:msg
+" s:SkeletonObject {{{
+let s:SkeletonObject = {}
+function! s:SkeletonObject.new() "{{{
+    return deepcopy(self)
+endfunction "}}}
+" }}}
+
+" s:ClassFactory {{{
+" See vice#class() for constructor.
+let s:ClassFactory = {}
+
+function! s:ClassFactory.new() "{{{
+    for builder in self._builders
+        call builder.build(self._object)
+    endfor
+    return deepcopy(self._object)
 endfunction "}}}
 
+function! s:ClassFactory.method(name) "{{{
+    let class_name = self._class_name
+    let real_name = class_name . '_' . a:name
+
+    " The function `real_name` doesn't exist
+    " when .method() is called.
+    " So I need to build self._object at .new()
+    let builder = {
+    \   'real_name': '<SNR>' . self._sid . '_' . real_name,
+    \   'method_name': a:name,
+    \}
+    function! builder.build(object)
+        " NOTE: Currently allows to override.
+        let a:object[self.method_name] = function(self.real_name)
+    endfunction
+    call add(self._builders, builder)
+
+    return 's:' . real_name
+endfunction "}}}
+
+function! s:ClassFactory.extends(parent_factory) "{{{
+    let builder = {'parent': a:parent_factory}
+    function builder.build(object)
+        " Current inheritance implementation is just doing extend().
+        call extend(a:object, self.parent, 'keep')
+        call add(a:object._super, self.parent)
+    endfunction
+    call add(self._builders, builder)
+
+    return self
+endfunction "}}}
+
+function! s:ClassFactory.super(...) "{{{
+    if len(self._super) == 1
+        return self._super[0]
+    endif
+    if a:0 && type(a:1) == type("")
+        " Look up the parent class by name.
+        for super in self._super
+            if super._class_name ==# a:1
+                return super
+            endif
+        endfor
+    endif
+    return self._super
+endfunction "}}}
+
+" }}}
+
+
+" TODO: Type constraints
+let s:builtin_types = {}
 
 function! s:initialize_builtin_types() "{{{
     let s:builtin_types['Dict[`a]'] = {}
@@ -79,93 +129,6 @@ function! s:initialize_builtin_types() "{{{
     function s:builtin_types['Fn'].where(Value)
         return type(a:Value) == type(function('tr'))
     endfunction
-endfunction "}}}
-
-function! s:parse_class_name(class_name) "{{{
-    let _ = split(a:class_name, '\.')
-    return [_[:-2], _[-1]]
-endfunction "}}}
-
-
-
-let s:skeleton_object = {}
-function! s:skeleton_object.new() "{{{
-    return deepcopy(self)
-endfunction "}}}
-
-
-
-" See vice#class() for constructor.
-let s:class_factory = {}
-
-function! s:class_factory.new() "{{{
-    for builder in self._builders
-        call builder.build(self._object)
-    endfor
-    return deepcopy(self._object)
-endfunction "}}}
-
-function! s:class_factory.method(name) "{{{
-    " NOTE: I don't use package name currently.
-    let [__unused__, class_name] = s:parse_class_name(self._class_name)
-    let real_name = class_name . '_' . a:name
-
-    " The function `real_name` doesn't exist
-    " when .method() is called.
-    " So I need to build self._object at .new()
-    let builder = {
-    \   'real_name': '<SNR>' . self._sid . '_' . real_name,
-    \   'method_name': a:name,
-    \}
-    function! builder.build(object)
-        " NOTE: Currently allows to override.
-        let a:object[self.method_name] = function(self.real_name)
-    endfunction
-    call add(self._builders, builder)
-
-    return 's:' . real_name
-endfunction "}}}
-
-function! s:class_factory.has(name, ...) "{{{
-    let opt = a:0 ? a:1 : {}
-
-    let self._object[a:name] = {'_name': a:name}
-    let obj = self._object[a:name]
-
-    if has_key(self, 'where')
-        let obj.where = self.where
-    endif
-    if has_key(opt, 'default')
-    \   && (has_key(self, 'where')
-    \       && self.where(opt.default))
-    \   || !has_key(self, 'where')
-        let obj._value = opt.default
-    endif
-
-    function! obj.get()
-        return copy(self._value)
-    endfunction
-
-    function! obj.set(Value)
-        if has_key(self, 'where') && !self.where(a:Value)
-            call vice#throw_exception(
-            \   ':' . self._name . ' : received invalid type.')
-        endif
-        let self._value = a:Value
-    endfunction
-
-    return self
-endfunction "}}}
-
-function! s:class_factory.extends(parent) "{{{
-    let builder = {'parent': a:parent}
-    function builder.build(object)
-        " Current inheritance implementation is just doing extend().
-        call extend(a:object, self.parent, 'keep')
-    endfunction
-    call add(self._builders, builder)
-
-    return self
 endfunction "}}}
 
 
