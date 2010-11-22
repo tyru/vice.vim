@@ -22,7 +22,7 @@ function! vice#class(class_name, sid, ...) "{{{
     let options = a:0 ? a:1 : {}
     let obj = deepcopy(s:SkeletonObject)
     return extend(
-    \   deepcopy(s:ClassFactory),
+    \   deepcopy(s:Class),
     \   {
     \       '_class_name': a:class_name,
     \       '_sid': a:sid,
@@ -43,11 +43,11 @@ function! s:SkeletonObject.clone() "{{{
 endfunction "}}}
 " }}}
 
-" s:ClassFactory {{{
+" s:Class {{{
 " See vice#class() for constructor.
-let s:ClassFactory = {}
+let s:Class = {}
 
-function! s:ClassFactory.new() "{{{
+function! s:Class.new() "{{{
     if has_key(self, '_builders')
         for builder in self._builders
             call builder.build(self._object)
@@ -57,7 +57,7 @@ function! s:ClassFactory.new() "{{{
     return deepcopy(self._object)
 endfunction "}}}
 
-function! s:ClassFactory.method(method_name) "{{{
+function! s:Class.method(method_name) "{{{
     let class_name = self._class_name
     let real_name = class_name . '_' . a:method_name
 
@@ -87,7 +87,7 @@ function! s:ClassFactory.method(method_name) "{{{
     return 's:' . real_name
 endfunction "}}}
 
-function! s:ClassFactory.extends(parent_factory) "{{{
+function! s:Class.extends(parent_factory) "{{{
     let builder = {'parent': a:parent_factory}
     function builder.build(object)
         " Current inheritance implementation is just doing extend().
@@ -99,7 +99,7 @@ function! s:ClassFactory.extends(parent_factory) "{{{
     return self
 endfunction "}}}
 
-function! s:ClassFactory.super(...) "{{{
+function! s:Class.super(...) "{{{
     if len(self._super) == 1
         return self._super[0]
     endif
@@ -114,7 +114,7 @@ function! s:ClassFactory.super(...) "{{{
     return self._super
 endfunction "}}}
 
-function! s:ClassFactory.property(property_name, Value) "{{{
+function! s:Class.property(property_name, Value) "{{{
     let builder = {
     \   'name': a:property_name,
     \   'value': a:Value,
