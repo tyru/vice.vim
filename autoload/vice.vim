@@ -19,6 +19,7 @@ function! vice#class(class_name, sid, ...) "{{{
     \       '_builders': [],
     \       '_super': [],
     \       '_opt_generate_stub': get(options, 'generate_stub', 1),
+    \       '_opt_fn_property': get(options, 'fn_property', 1),
     \   },
     \   'force'
     \)
@@ -103,14 +104,30 @@ function! s:ClassFactory.super(...) "{{{
 endfunction "}}}
 
 function! s:ClassFactory.property(property_name, Value) "{{{
-    let builder = {'name': a:property_name, 'value': a:Value}
+    let builder = {
+    \   'name': a:property_name,
+    \   'value': a:Value,
+    \   'fn_property': self._opt_fn_property,
+    \}
     function builder.build(object)
-        " Create a property.
-        let a:object[self.name] = extend(
-        \   deepcopy(s:SkeletonProperty),
-        \   {'_value': self.value},
-        \   'error'
-        \)
+        if self.fn_property
+            let prop = '_property_' . self.name
+            execute join([
+            \   'function a:object[' . string(self.name) . '](...)',
+            \       'if a:0',
+            \           'let self[' . string(prop) . '] = a:1',
+            \       'endif',
+            \       'return self[' . string(prop) . ']',
+            \   'endfunction',
+            \], "\n")
+            let a:object[prop] = self.value
+        else
+            let a:object[self.name] = extend(
+            \   deepcopy(s:SkeletonProperty),
+            \   {'_value': self.value},
+            \   'error'
+            \)
+        endif
     endfunction
     call add(self._builders, builder)
 endfunction "}}}
