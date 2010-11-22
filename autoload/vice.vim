@@ -23,7 +23,6 @@ function! vice#class(class_name, sid, ...) "{{{
     \       '_builders': [],
     \       '_super': [],
     \       '_opt_generate_stub': get(options, 'generate_stub', 0),
-    \       '_opt_fn_property': get(options, 'fn_property', 0),
     \   },
     \   'force'
     \)
@@ -173,31 +172,37 @@ let s:Extendable = {
 " s:Class {{{
 " See vice#class() for the constructor.
 
+function! s:Class_accessor(accessor_name, Value) dict "{{{
+    let builder = {
+    \   'name': a:accessor_name,
+    \   'value': a:Value,
+    \}
+    function builder.build(object)
+        let acc = '_accessor_' . self.name
+        execute join([
+        \   'function a:object[' . string(self.name) . '](...)',
+        \       'if a:0',
+        \           'let self[' . string(acc) . '] = a:1',
+        \       'endif',
+        \       'return self[' . string(acc) . ']',
+        \   'endfunction',
+        \], "\n")
+        let a:object[acc] = self.value
+    endfunction
+    call add(self._builders, builder)
+endfunction "}}}
+
 function! s:Class_property(property_name, Value) dict "{{{
     let builder = {
     \   'name': a:property_name,
     \   'value': a:Value,
-    \   'fn_property': self._opt_fn_property,
     \}
     function builder.build(object)
-        if self.fn_property
-            let prop = '_property_' . self.name
-            execute join([
-            \   'function a:object[' . string(self.name) . '](...)',
-            \       'if a:0',
-            \           'let self[' . string(prop) . '] = a:1',
-            \       'endif',
-            \       'return self[' . string(prop) . ']',
-            \   'endfunction',
-            \], "\n")
-            let a:object[prop] = self.value
-        else
-            let a:object[self.name] = extend(
-            \   deepcopy(s:SkeletonProperty),
-            \   {'_value': self.value},
-            \   'error'
-            \)
-        endif
+        let a:object[self.name] = extend(
+        \   deepcopy(s:SkeletonProperty),
+        \   {'_value': self.value},
+        \   'error'
+        \)
     endfunction
     call add(self._builders, builder)
 endfunction "}}}
@@ -231,9 +236,9 @@ endfunction "}}}
 
 let s:Class = {
 \   'property': s:get_local_func('Class_property'),
+\   'accessor': s:get_local_func('Class_accessor'),
 \   'attribute': s:get_local_func('Class_attribute'),
 \   'can': s:get_local_func('Class_can'),
-\   '_opt_fn_property': 0,
 \}
 call extend(s:Class, s:Builder, 'error')
 call extend(s:Class, s:MethodMaker, 'error')
