@@ -65,7 +65,8 @@ endfunction "}}}
 
 " s:Builder "{{{
 " Abstruct class.
-" NOTE: Needs List variable `self._builders`.
+" NOTE: s:Builder needs:
+" - ._builders
 
 function! s:Builder_build() dict "{{{
     for builder in self._builders
@@ -81,7 +82,9 @@ let s:Builder = {
 " }}}
 " s:MethodMaker {{{
 " Abstruct class.
-" NOTE: Needs List variable `self._builders`.
+" NOTE: s:MethodMaker needs:
+" - ._class_name
+" - ._builders
 
 function! s:MethodMaker_method(method_name) dict "{{{
     let class_name = self._class_name
@@ -121,7 +124,9 @@ let s:MethodMaker = {
 " }}}
 " s:Extendable {{{
 " Abstruct class.
-" NOTE: Needs List variable `self._builders`.
+" NOTE: s:Extendable needs:
+" - ._class_name
+" - ._builders
 
 function! s:Extendable_extends(parent_factory) dict "{{{
     let builder = {'parent': a:parent_factory, 'super': self._super}
