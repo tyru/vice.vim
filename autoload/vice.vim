@@ -239,6 +239,7 @@ let s:SkeletonObject = {
 let s:Trait = {}
 call extend(s:Trait, s:Builder, 'error')
 call extend(s:Trait, s:MethodMaker, 'error')
+let s:Trait._builders = []    " to satisfy two abstruct parents.
 " }}}
 
 
