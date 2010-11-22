@@ -10,6 +10,8 @@ set cpo&vim
 " Interfaces {{{
 
 function! vice#class(class_name, sid, ...) "{{{
+    " FIXME: hmm, all members including parents' members
+    " are initialized here.
     let options = a:0 ? a:1 : {}
     return extend(
     \   deepcopy(s:Class),
@@ -27,7 +29,9 @@ function! vice#class(class_name, sid, ...) "{{{
     \)
 endfunction "}}}
 
-function! vice#trait(...) "{{{
+function! vice#trait(class_name, sid, ...) "{{{
+    " FIXME: hmm, all members including parents' members
+    " are initialized here.
     let options = a:0 ? a:1 : {}
     return extend(
     \   deepcopy(s:Trait),
