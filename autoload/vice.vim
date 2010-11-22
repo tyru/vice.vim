@@ -47,12 +47,7 @@ endfunction "}}}
 " See vice#class() for constructor.
 
 function! s:Class_new() dict "{{{
-    if has_key(self, '_builders')
-        for builder in self._builders
-            call builder.build(self._object)
-        endfor
-        unlet self._builders
-    endif
+    call self.build()
     return deepcopy(self._object)
 endfunction "}}}
 
@@ -165,6 +160,15 @@ function! s:Class_attribute(attribute_name, Value) dict "{{{
     call add(self._builders, builder)
 endfunction "}}}
 
+function! s:Class_build() dict "{{{
+    if has_key(self, '_builders')
+        for builder in self._builders
+            call builder.build(self._object)
+        endfor
+        unlet self._builders
+    endif
+endfunction "}}}
+
 let s:Class = {
 \   'new': s:get_local_func('Class_new'),
 \   'method': s:get_local_func('Class_method'),
@@ -172,6 +176,7 @@ let s:Class = {
 \   'super': s:get_local_func('Class_super'),
 \   'property': s:get_local_func('Class_property'),
 \   'attribute': s:get_local_func('Class_attribute'),
+\   'build': s:get_local_func('Class_build'),
 \}
 " }}}
 
