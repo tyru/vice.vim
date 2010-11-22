@@ -13,13 +13,21 @@ function! vice#class(class_name, sid, ...) "{{{
     " FIXME: hmm, all members including parents' members
     " are initialized here.
     let options = a:0 ? a:1 : {}
+
+    let obj = {}
+    if get(options, 'auto_clone_method', 1)
+        let obj.clone = s:SkeletonObject.clone
+    endif
+    if get(options, 'auto_new_method', 0)
+        let obj.new = s:SkeletonObject.new
+    endif
+
     return extend(
     \   deepcopy(s:Class),
     \   {
     \       '_class_name': a:class_name,
     \       '_sid': a:sid,
-    \       '_object': (get(options, 'empty_object', 0) ?
-    \                       {} : deepcopy(s:SkeletonObject)),
+    \       '_object': obj,
     \       '_builders': [],
     \       '_super': [],
     \       '_opt_generate_stub': get(options, 'generate_stub', 0),
