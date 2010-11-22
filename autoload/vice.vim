@@ -143,17 +143,17 @@ function! s:get_local_func(function_name) "{{{
     return function('<SNR>' . s:SID_PREFIX . '_' . a:function_name)
 endfunction "}}}
 
-function! s:PropertySkeleton_get() dict "{{{
+function! s:SkeletonProperty_get() dict "{{{
     return self._value
 endfunction "}}}
 
-function! s:PropertySkeleton_set(Value) dict "{{{
+function! s:SkeletonProperty_set(Value) dict "{{{
     let self._value = a:Value
 endfunction "}}}
 
 let s:SkeletonProperty = {
-\   'get': s:get_local_func('PropertySkeleton_get'),
-\   'set': s:get_local_func('PropertySkeleton_set'),
+\   'get': s:get_local_func('SkeletonProperty_get'),
+\   'set': s:get_local_func('SkeletonProperty_set'),
 \}
 " }}}
 
