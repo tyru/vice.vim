@@ -158,6 +158,14 @@ let s:SkeletonProperty = {
 \}
 " }}}
 
+function! s:Class.attribute(attribute_name, Value) "{{{
+    let builder = {'name': a:attribute_name, 'value': a:Value}
+    function builder.build(object)
+        let a:object[self.name] = self.value
+    endfunction
+    call add(self._builders, builder)
+endfunction "}}}
+
 " }}}
 
 
