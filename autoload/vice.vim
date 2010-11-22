@@ -75,7 +75,7 @@ function! s:ClassFactory.method(method_name) "{{{
             " Create a stub for `self.real_name`.
             execute join([
             \   'function! a:object[' . string(self.method_name) . '](...)',
-            \       'call call(' . string(self.real_name) . ', [self] + a:000)',
+            \       'return call(' . string(self.real_name) . ', [self] + a:000)',
             \   'endfunction',
             \], "\n")
         else
