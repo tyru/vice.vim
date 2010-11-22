@@ -87,10 +87,15 @@ function! s:Builder_build() dict "{{{
     endwhile
 endfunction "}}}
 
+function! s:Builder__add_builder(builder) dict "{{{
+    call add(self._builders, a:builder)
+endfunction "}}}
+
 let s:Builder = {
 \   '_object': {},
 \   'new': s:get_local_func('Builder_new'),
 \   'build': s:get_local_func('Builder_build'),
+\   '_add_builder': s:get_local_func('Builder__add_builder'),
 \}
 " }}}
 " s:MethodMaker {{{
@@ -132,7 +137,7 @@ function! s:MethodMaker_method(method_name, ...) dict "{{{
             let a:this._object[self.method_name] = function(self.real_name)
         endif
     endfunction
-    call add(self._builders, builder)
+    call self._add_builder(builder)
 
     let self._methods[a:method_name] = builder.real_name
 
@@ -218,7 +223,7 @@ function! s:Extendable_extends(parent_factory) dict "{{{
         " Add its factory to the super classes.
         call add(a:this._super, self.parent)
     endfunction
-    call add(self._builders, builder)
+    call self._add_builder(builder)
 endfunction "}}}
 
 function! s:Extendable_super(this, method_name, ...) dict "{{{
@@ -255,7 +260,7 @@ function! s:Class_accessor(accessor_name, Value) dict "{{{
         \], "\n")
         let a:this._object[acc] = self.value
     endfunction
-    call add(self._builders, builder)
+    call self._add_builder(builder)
 endfunction "}}}
 
 function! s:Class_property(property_name, Value) dict "{{{
@@ -270,7 +275,7 @@ function! s:Class_property(property_name, Value) dict "{{{
         \   'error'
         \)
     endfunction
-    call add(self._builders, builder)
+    call self._add_builder(builder)
 endfunction "}}}
 " s:SkeletonProperty {{{
 
@@ -293,7 +298,7 @@ function! s:Class_attribute(attribute_name, Value) dict "{{{
     function builder.build(this)
         let a:this._object[self.name] = self.value
     endfunction
-    call add(self._builders, builder)
+    call self._add_builder(builder)
 endfunction "}}}
 
 function! s:Class_can(trait) dict "{{{
@@ -308,7 +313,7 @@ function! s:Class_can(trait) dict "{{{
         " So `self.trait.requires()` method(s)
         " may not exist at the first time.
         if !self.has_postponed_once
-            call add(a:this._builders, self)
+            call a:this._add_builder(self)
             let self.has_postponed_once = 1
             return
         endif
@@ -323,7 +328,7 @@ function! s:Class_can(trait) dict "{{{
             endif
         endfor
     endfunction
-    call add(self._builders, builder)
+    call self._add_builder(builder)
 endfunction "}}}
 
 let s:Class = {
