@@ -68,6 +68,11 @@ endfunction "}}}
 " NOTE: s:Builder needs:
 " - ._builders
 
+function! s:Builder_new() dict "{{{
+    call self.build()
+    return deepcopy(self._object)
+endfunction "}}}
+
 function! s:Builder_build() dict "{{{
     for builder in self._builders
         call builder.build(self._object)
@@ -77,6 +82,7 @@ endfunction "}}}
 
 let s:Builder = {
 \   '_object': {},
+\   'new': s:get_local_func('Builder_new'),
 \   'build': s:get_local_func('Builder_build'),
 \}
 " }}}
@@ -167,11 +173,6 @@ let s:Extendable = {
 " s:Class {{{
 " See vice#class() for the constructor.
 
-function! s:Class_new() dict "{{{
-    call self.build()
-    return deepcopy(self._object)
-endfunction "}}}
-
 function! s:Class_property(property_name, Value) dict "{{{
     let builder = {
     \   'name': a:property_name,
@@ -229,7 +230,6 @@ function! s:Class_can(trait) dict "{{{
 endfunction "}}}
 
 let s:Class = {
-\   'new': s:get_local_func('Class_new'),
 \   'property': s:get_local_func('Class_property'),
 \   'attribute': s:get_local_func('Class_attribute'),
 \   'can': s:get_local_func('Class_can'),
