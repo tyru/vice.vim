@@ -190,8 +190,9 @@ function! s:MethodMaker__call_parent_method(this, method_name, args) dict "{{{
         endif
     endif
 
-    throw "vice: .super() could not find the parent"
-    /       . " who has '" . a:method_name . "'."
+    throw "vice: Class '" . self._class_name . "':"
+    \       . " .super() could not find the parent"
+    \       . " who has '" . a:method_name . "'."
 endfunction "}}}
 
 let s:MethodMaker = {
