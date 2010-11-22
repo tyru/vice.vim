@@ -72,8 +72,8 @@ function! s:ClassFactory.extends(parent_factory) "{{{
     let builder = {'parent': a:parent_factory}
     function builder.build(object)
         " Current inheritance implementation is just doing extend().
-        call extend(a:object, self.parent, 'keep')
-        call add(a:object._super, self.parent)
+        call extend(a:object, self.parent._object, 'keep')
+        call add(a:object._super, self.parent._object)
     endfunction
     call add(self._builders, builder)
 
