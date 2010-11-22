@@ -133,6 +133,7 @@ let s:MethodMaker = {
 " - ._builders
 
 function! s:Extendable_extends(parent_factory) dict "{{{
+    " a:parent_factory requires s:Builder.
     let builder = {'parent': a:parent_factory}
     function builder.build(this)
         " Build all methods.
