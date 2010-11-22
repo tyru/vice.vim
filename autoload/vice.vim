@@ -73,10 +73,10 @@ function! s:Builder_new() dict "{{{
 endfunction "}}}
 
 function! s:Builder_build() dict "{{{
-    for builder in self._builders
+    while !empty(self._builders)
+        let builder = remove(self._builders, 0)
         call builder.build(self)
-    endfor
-    let self._builders = []
+    endwhile
 endfunction "}}}
 
 let s:Builder = {
@@ -229,7 +229,33 @@ function! s:Class_attribute(attribute_name, Value) dict "{{{
 endfunction "}}}
 
 function! s:Class_can(trait) dict "{{{
-    return self.extends(a:trait)
+    " Extends all methods before using trait.
+    call self.extends(a:trait)
+
+    let builder = {'trait': a:trait, 'has_postponed_once': 0}
+    function! builder.build(this)
+        " The reason why only trait should postpone
+        " its .build() process is that .method() can be
+        " after the .can({trait}) .
+        " So `self.trait.requires()` method(s)
+        " may not exist at the first time.
+        if !self.has_postponed_once
+            call add(a:this._builders, self)
+            let self.has_postponed_once = 1
+            return
+        endif
+        if !has_key(self.trait, 'requires')
+            return
+        endif
+        for prereq_method in self.trait.requires()
+            if !has_key(a:this._object, prereq_method)
+                throw "vice: required method '" . prereq_method . "'"
+                \       . " is not found at the class "
+                \       . "'" . a:this._class_name . "'."
+            endif
+        endfor
+    endfunction
+    call add(self._builders, builder)
 endfunction "}}}
 
 let s:Class = {
