@@ -22,27 +22,27 @@ endfun
 
 let s:RichStr = vice#class('RichStr', s:SID(), {'generate_stub': 1})
 
-
-call s:RichStr.property('_str', '')
+" Or Perl's Class::Accessor like accessor.
+call s:RichStr.accessor('_str', '')
 
 function! {s:RichStr.method('get')}(this) "{{{
-    return a:this._str.get()
+    return a:this._str()
 endfunction "}}}
 
 function! {s:RichStr.method('set')}(this, str) "{{{
-    return a:this._str.set(a:str)
+    return a:this._str(a:str)
 endfunction "}}}
 
 function! {s:RichStr.method('prepend')}(this, str) "{{{
-    return a:this._str.set(a:str . a:this._str.get())
+    return a:this._str(a:str . a:this._str())
 endfunction "}}}
 
 function! {s:RichStr.method('append')}(this, str) "{{{
-    return a:this._str.set(a:this._str.get() . a:str)
+    return a:this._str(a:this._str() . a:str)
 endfunction "}}}
 
 function! {s:RichStr.method('start_with')}(this, str) "{{{
-    return stridx(a:this._str.get(), a:str) ==# 0
+    return stridx(a:this._str(), a:str) ==# 0
 endfunction "}}}
 
 
