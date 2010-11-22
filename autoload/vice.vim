@@ -25,7 +25,7 @@ endfunction "}}}
 
 
 function! vice#class(class_name, sid, ...) "{{{
-    let obj = deepcopy(s:object)
+    let obj = deepcopy(s:skeleton_object)
     return extend(
     \   deepcopy(s:class_factory),
     \   {
@@ -88,8 +88,8 @@ endfunction "}}}
 
 
 
-let s:object = {}
-function! s:object.new() "{{{
+let s:skeleton_object = {}
+function! s:skeleton_object.new() "{{{
     return deepcopy(self)
 endfunction "}}}
 
