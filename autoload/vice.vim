@@ -87,6 +87,44 @@ function! s:ClassFactory.super(...) "{{{
     return self._super
 endfunction "}}}
 
+function! s:ClassFactory.property(property_name, Value) "{{{
+    let builder = {'name': a:property_name, 'value': a:Value}
+    function builder.build(object)
+        " Create a property.
+        let a:object[self.name] = extend(
+        \   deepcopy(s:SkeletonProperty),
+        \   {'_value': self.value},
+        \   'error'
+        \)
+    endfunction
+    call add(self._builders, builder)
+endfunction "}}}
+" s:SkeletonProperty {{{
+
+function s:SID()
+    return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+endfun
+let s:SID_PREFIX = s:SID()
+delfunc s:SID
+
+function! s:get_local_func(function_name) "{{{
+    return function('<SNR>' . s:SID_PREFIX . '_' . a:function_name)
+endfunction "}}}
+
+function! s:PropertySkeleton_get() dict "{{{
+    return self._value
+endfunction "}}}
+
+function! s:PropertySkeleton_set(Value) dict "{{{
+    let self._value = a:Value
+endfunction "}}}
+
+let s:SkeletonProperty = {
+\   'get': s:get_local_func('PropertySkeleton_get'),
+\   'set': s:get_local_func('PropertySkeleton_set'),
+\}
+" }}}
+
 " }}}
 
 
