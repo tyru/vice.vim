@@ -21,6 +21,7 @@
 - Property is subroutine in Moose. vice should follow that.
     - Because it's more scalable.
     - ...but it can't in Vim script!
+    - because function is not first class object.
 - Moose's before(), after()
     - override (or more like Aspect-Oriented?)
 - Separate `s:class_factory` to factory class (creating instance)
