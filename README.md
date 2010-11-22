@@ -1,5 +1,6 @@
 
-# Inheritance
+# Features
+## Inheritance
 
     " vice.vim needs to know defined SID.
     function s:SID()
