@@ -28,9 +28,20 @@ function! vice#class(class_name, sid, ...) "{{{
 endfunction "}}}
 
 function! vice#trait(...) "{{{
-    let trait = call('vice#class', a:000)
-    unlet trait.new    " Trait cannot be instantiated.
-    return trait
+    let options = a:0 ? a:1 : {}
+    return extend(
+    \   deepcopy(s:Trait),
+    \   {
+    \       '_class_name': a:class_name,
+    \       '_sid': a:sid,
+    \       '_object': (get(options, 'empty_object', 0) ?
+    \                       {} : deepcopy(s:SkeletonObject)),
+    \       '_builders': [],
+    \       '_super': [],
+    \       '_opt_generate_stub': get(options, 'generate_stub', 0),
+    \   },
+    \   'force'
+    \)
 endfunction "}}}
 
 " }}}
