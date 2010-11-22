@@ -82,11 +82,11 @@ function! s:Class_method(method_name) dict "{{{
 endfunction "}}}
 
 function! s:Class_extends(parent_factory) dict "{{{
-    let builder = {'parent': a:parent_factory}
+    let builder = {'parent': a:parent_factory, 'super': self._super}
     function builder.build(object)
-        " Current inheritance implementation is just doing extend().
+        call self.parent.build()    " Build all methods.
         call extend(a:object, self.parent._object, 'keep')
-        call add(a:object._super, self.parent._object)
+        call add(self.super, self.parent._object)
     endfunction
     call add(self._builders, builder)
 
