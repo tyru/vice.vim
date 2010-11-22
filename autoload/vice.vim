@@ -47,7 +47,7 @@ let s:SkeletonObject = {
 " }}}
 
 " s:Class {{{
-" See vice#class() for constructor.
+" See vice#class() for the constructor.
 
 function! s:Class_new() dict "{{{
     call self.build()
