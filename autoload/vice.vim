@@ -192,12 +192,17 @@ function! s:Class_attribute(attribute_name, Value) dict "{{{
     call add(self._builders, builder)
 endfunction "}}}
 
+function! s:Class_can(trait) dict "{{{
+    return self.extends(a:trait)
+endfunction "}}}
+
 let s:Class = {
 \   'new': s:get_local_func('Class_new'),
 \   'extends': s:get_local_func('Class_extends'),
 \   'super': s:get_local_func('Class_super'),
 \   'property': s:get_local_func('Class_property'),
 \   'attribute': s:get_local_func('Class_attribute'),
+\   'can': s:get_local_func('Class_can'),
 \   '_super': [],
 \   '_opt_fn_property': 0,
 \}
