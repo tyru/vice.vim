@@ -2,7 +2,7 @@
 # Features
 ## Inheritance
 
-    " vice.vim needs to know defined SID.
+    " vice.vim needs to know the SID of where the methods are defined.
     function! s:SID()
         return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
     endfunction
