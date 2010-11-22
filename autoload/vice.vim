@@ -45,9 +45,8 @@ endfunction "}}}
 
 " s:Class {{{
 " See vice#class() for constructor.
-let s:Class = {}
 
-function! s:Class.new() "{{{
+function! s:Class_new() dict "{{{
     if has_key(self, '_builders')
         for builder in self._builders
             call builder.build(self._object)
@@ -57,7 +56,7 @@ function! s:Class.new() "{{{
     return deepcopy(self._object)
 endfunction "}}}
 
-function! s:Class.method(method_name) "{{{
+function! s:Class_method(method_name) dict "{{{
     let class_name = self._class_name
     let real_name = class_name . '_' . a:method_name
 
@@ -87,7 +86,7 @@ function! s:Class.method(method_name) "{{{
     return 's:' . real_name
 endfunction "}}}
 
-function! s:Class.extends(parent_factory) "{{{
+function! s:Class_extends(parent_factory) dict "{{{
     let builder = {'parent': a:parent_factory}
     function builder.build(object)
         " Current inheritance implementation is just doing extend().
@@ -99,7 +98,7 @@ function! s:Class.extends(parent_factory) "{{{
     return self
 endfunction "}}}
 
-function! s:Class.super(...) "{{{
+function! s:Class_super(...) dict "{{{
     if len(self._super) == 1
         return self._super[0]
     endif
@@ -114,7 +113,7 @@ function! s:Class.super(...) "{{{
     return self._super
 endfunction "}}}
 
-function! s:Class.property(property_name, Value) "{{{
+function! s:Class_property(property_name, Value) dict "{{{
     let builder = {
     \   'name': a:property_name,
     \   'value': a:Value,
@@ -158,7 +157,7 @@ let s:SkeletonProperty = {
 \}
 " }}}
 
-function! s:Class.attribute(attribute_name, Value) "{{{
+function! s:Class_attribute(attribute_name, Value) dict "{{{
     let builder = {'name': a:attribute_name, 'value': a:Value}
     function builder.build(object)
         let a:object[self.name] = self.value
@@ -166,6 +165,14 @@ function! s:Class.attribute(attribute_name, Value) "{{{
     call add(self._builders, builder)
 endfunction "}}}
 
+let s:Class = {
+\   'new': s:get_local_func('Class_new'),
+\   'method': s:get_local_func('Class_method'),
+\   'extends': s:get_local_func('Class_extends'),
+\   'super': s:get_local_func('Class_super'),
+\   'property': s:get_local_func('Class_property'),
+\   'attribute': s:get_local_func('Class_attribute'),
+\}
 " }}}
 
 
