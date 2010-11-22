@@ -67,9 +67,6 @@
     call bar.say()
 
 ## Trait (Perl's role-like feature)
-NOTE: The similar thing is possible with .extends(),
-but traits can *require* some methods to implement
-
 - Trait can force implementer's class to implement some methods.
 - Trait can *require* some methods to implement
 
