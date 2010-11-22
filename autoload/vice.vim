@@ -7,6 +7,17 @@ set cpo&vim
 " }}}
 
 
+function s:SID()
+    return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+endfun
+let s:SID_PREFIX = s:SID()
+delfunc s:SID
+
+function! s:get_local_func(function_name) "{{{
+    return function('<SNR>' . s:SID_PREFIX . '_' . a:function_name)
+endfunction "}}}
+
+
 function! vice#class(class_name, sid, ...) "{{{
     let options = a:0 ? a:1 : {}
     let obj = deepcopy(s:SkeletonObject)
@@ -132,16 +143,6 @@ function! s:ClassFactory.property(property_name, Value) "{{{
     call add(self._builders, builder)
 endfunction "}}}
 " s:SkeletonProperty {{{
-
-function s:SID()
-    return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
-endfun
-let s:SID_PREFIX = s:SID()
-delfunc s:SID
-
-function! s:get_local_func(function_name) "{{{
-    return function('<SNR>' . s:SID_PREFIX . '_' . a:function_name)
-endfunction "}}}
 
 function! s:SkeletonProperty_get() dict "{{{
     return self._value
