@@ -18,6 +18,65 @@ function! s:get_local_func(function_name) "{{{
 endfunction "}}}
 
 
+" s:Builder "{{{
+" Abstruct class.
+" NOTE: Needs List variable `self._builders`.
+
+function! s:Builder_build() dict "{{{
+    for builder in self._builders
+        call builder.build(self._object)
+    endfor
+    let self._builders = []
+endfunction "}}}
+
+let s:Builder = {
+\   '_object': {},
+\   'build': s:get_local_func('Builder_build'),
+\}
+" }}}
+" s:MethodMaker {{{
+" Abstruct class.
+" NOTE: Needs List variable `self._builders`.
+
+function! s:MethodMaker_method(method_name) dict "{{{
+    let class_name = self._class_name
+    let real_name = class_name . '_' . a:method_name
+
+    " The function `real_name` doesn't exist
+    " when .method() is called.
+    " So I need to build self._object at .new()
+    let builder = {
+    \   'real_name': '<SNR>' . self._sid . '_' . real_name,
+    \   'method_name': a:method_name,
+    \   'do_generate_stub': self._opt_generate_stub,
+    \}
+    function! builder.build(object)
+        " NOTE: Currently allows to override.
+        if self.do_generate_stub
+            " Create a stub for `self.real_name`.
+            execute join([
+            \   'function! a:object[' . string(self.method_name) . '](...)',
+            \       'return call(' . string(self.real_name) . ', [self] + a:000)',
+            \   'endfunction',
+            \], "\n")
+        else
+            let a:object[self.method_name] = function(self.real_name)
+        endif
+    endfunction
+    call add(self._builders, builder)
+
+    return 's:' . real_name
+endfunction "}}}
+
+let s:MethodMaker = {
+\   '_class_name': '',
+\   '_sid': -1,
+\   '_opt_generate_stub': 0,
+\   'method': s:get_local_func('MethodMaker_method'),
+\}
+" }}}
+
+
 function! vice#class(class_name, sid, ...) "{{{
     let options = a:0 ? a:1 : {}
     let obj = deepcopy(s:SkeletonObject)
@@ -52,36 +111,6 @@ let s:SkeletonObject = {
 function! s:Class_new() dict "{{{
     call self.build()
     return deepcopy(self._object)
-endfunction "}}}
-
-function! s:Class_method(method_name) dict "{{{
-    let class_name = self._class_name
-    let real_name = class_name . '_' . a:method_name
-
-    " The function `real_name` doesn't exist
-    " when .method() is called.
-    " So I need to build self._object at .new()
-    let builder = {
-    \   'real_name': '<SNR>' . self._sid . '_' . real_name,
-    \   'method_name': a:method_name,
-    \   'do_generate_stub': self._opt_generate_stub,
-    \}
-    function! builder.build(object)
-        " NOTE: Currently allows to override.
-        if self.do_generate_stub
-            " Create a stub for `self.real_name`.
-            execute join([
-            \   'function! a:object[' . string(self.method_name) . '](...)',
-            \       'return call(' . string(self.real_name) . ', [self] + a:000)',
-            \   'endfunction',
-            \], "\n")
-        else
-            let a:object[self.method_name] = function(self.real_name)
-        endif
-    endfunction
-    call add(self._builders, builder)
-
-    return 's:' . real_name
 endfunction "}}}
 
 function! s:Class_extends(parent_factory) dict "{{{
@@ -163,24 +192,18 @@ function! s:Class_attribute(attribute_name, Value) dict "{{{
     call add(self._builders, builder)
 endfunction "}}}
 
-function! s:Class_build() dict "{{{
-    if has_key(self, '_builders')
-        for builder in self._builders
-            call builder.build(self._object)
-        endfor
-        unlet self._builders
-    endif
-endfunction "}}}
-
 let s:Class = {
 \   'new': s:get_local_func('Class_new'),
-\   'method': s:get_local_func('Class_method'),
 \   'extends': s:get_local_func('Class_extends'),
 \   'super': s:get_local_func('Class_super'),
 \   'property': s:get_local_func('Class_property'),
 \   'attribute': s:get_local_func('Class_attribute'),
-\   'build': s:get_local_func('Class_build'),
+\   '_super': [],
+\   '_opt_fn_property': 0,
 \}
+call extend(s:Class, s:Builder, 'error')
+call extend(s:Class, s:MethodMaker, 'error')
+let s:Class._builders = []    " to satisfy two abstruct parents.
 " }}}
 
 
@@ -189,6 +212,14 @@ function! vice#trait(...) "{{{
     unlet trait.new    " Trait cannot be instantiated.
     return trait
 endfunction "}}}
+
+" s:Trait {{{
+" vice#trait() for the constructor.
+
+let s:Trait = {}
+call extend(s:Trait, s:Builder, 'error')
+call extend(s:Trait, s:MethodMaker, 'error')
+" }}}
 
 
 " TODO: Type constraints
