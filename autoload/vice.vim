@@ -7,7 +7,8 @@ set cpo&vim
 " }}}
 
 
-function! vice#class(class_name, sid) "{{{
+function! vice#class(class_name, sid, ...) "{{{
+    let options = a:0 ? a:1 : {}
     let obj = deepcopy(s:SkeletonObject)
     return extend(
     \   deepcopy(s:ClassFactory),
@@ -17,6 +18,7 @@ function! vice#class(class_name, sid) "{{{
     \       '_object': obj,
     \       '_builders': [],
     \       '_super': [],
+    \       '_opt_generate_stub': get(options, 'generate_stub', 1),
     \   },
     \   'force'
     \)
@@ -53,15 +55,20 @@ function! s:ClassFactory.method(method_name) "{{{
     let builder = {
     \   'real_name': '<SNR>' . self._sid . '_' . real_name,
     \   'method_name': a:method_name,
+    \   'do_generate_stub': self._opt_generate_stub,
     \}
     function! builder.build(object)
-        " Create a stub for `self.real_name`.
         " NOTE: Currently allows to override.
-        execute join([
-        \   'function! a:object[' . string(self.method_name) . '](...)',
-        \       'call call(' . string(self.real_name) . ', [self] + a:000)',
-        \   'endfunction',
-        \], "\n")
+        if self.do_generate_stub
+            " Create a stub for `self.real_name`.
+            execute join([
+            \   'function! a:object[' . string(self.method_name) . '](...)',
+            \       'call call(' . string(self.real_name) . ', [self] + a:000)',
+            \   'endfunction',
+            \], "\n")
+        else
+            let a:object[self.method_name] = function(self.real_name)
+        endif
     endfunction
     call add(self._builders, builder)
 
