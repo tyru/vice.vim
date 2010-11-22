@@ -37,10 +37,13 @@ function! vice#class(class_name, sid, ...) "{{{
 endfunction "}}}
 
 " s:SkeletonObject {{{
-let s:SkeletonObject = {}
-function! s:SkeletonObject.clone() "{{{
+function! s:SkeletonObject_clone() dict "{{{
     return deepcopy(self)
 endfunction "}}}
+
+let s:SkeletonObject = {
+\   'clone': s:get_local_func('SkeletonObject_clone'),
+\}
 " }}}
 
 " s:Class {{{
