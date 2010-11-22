@@ -114,7 +114,6 @@ function! s:MethodMaker_method(method_name) dict "{{{
 endfunction "}}}
 
 let s:MethodMaker = {
-\   '_class_name': '',
 \   '_sid': -1,
 \   '_opt_generate_stub': 0,
 \   'method': s:get_local_func('MethodMaker_method'),
@@ -157,6 +156,7 @@ endfunction "}}}
 let s:Extendable = {
 \   'extends': s:get_local_func('Extendable_extends'),
 \   'super': s:get_local_func('Extendable_super'),
+\   '_super': [],
 \}
 " }}}
 " s:Class {{{
@@ -228,13 +228,14 @@ let s:Class = {
 \   'property': s:get_local_func('Class_property'),
 \   'attribute': s:get_local_func('Class_attribute'),
 \   'can': s:get_local_func('Class_can'),
-\   '_super': [],
 \   '_opt_fn_property': 0,
 \}
 call extend(s:Class, s:Builder, 'error')
 call extend(s:Class, s:MethodMaker, 'error')
 call extend(s:Class, s:Extendable, 'error')
-let s:Class._builders = []    " to satisfy 3 abstruct parents.
+" Implement some properties to satisfy abstruct parents.
+let s:Class._builders = []
+let s:Class._class_name = ''
 " }}}
 " s:SkeletonObject {{{
 function! s:SkeletonObject_clone() dict "{{{
@@ -252,7 +253,9 @@ let s:Trait = {}
 call extend(s:Trait, s:Builder, 'error')
 call extend(s:Trait, s:MethodMaker, 'error')
 call extend(s:Trait, s:Extendable, 'error')
-let s:Trait._builders = []    " to satisfy 3 abstruct parents.
+" Implement some properties to satisfy abstruct parents.
+let s:Trait._builders = []
+let s:Trait._class_name = ''
 " }}}
 
 
