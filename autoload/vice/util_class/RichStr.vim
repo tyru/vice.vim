@@ -46,6 +46,8 @@ function! {s:RichStr.method('start_with')}(this, str) "{{{
 endfunction "}}}
 
 
+if 0
+
 " {'fn_property': 1}
 let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 1})
 
@@ -71,6 +73,8 @@ endfunction "}}}
 function! {s:RichStr.method('start_with')}(this, str) "{{{
     return stridx(a:this._str(), a:str) ==# 0
 endfunction "}}}
+
+endif
 
 
 " Restore 'cpoptions' {{{
