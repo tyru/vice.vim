@@ -20,7 +20,7 @@ function! s:SID()
 endfun
 
 
-let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 0, 'generate_stub': 1})
+let s:RichStr = vice#class('RichStr', s:SID(), {'generate_stub': 1})
 
 
 call s:RichStr.property('_str', '')
@@ -47,16 +47,15 @@ endfunction "}}}
 
 
 
-" Or Perl's Class::Accessor like property.
+" Or Perl's Class::Accessor like accessor.
 
 
 if 0
 
-" {'fn_property': 1}
-let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 1, 'generate_stub': 1})
+let s:RichStr = vice#class('RichStr', s:SID(), {'generate_stub': 1})
 
 
-call s:RichStr.property('_str', '')
+call s:RichStr.accessor('_str', '')
 
 function! {s:RichStr.method('get')}(this) "{{{
     return a:this._str()
