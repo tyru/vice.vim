@@ -6,6 +6,7 @@
     function! s:SID()
         return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
     endfunction
+
     " 'generate_stub' is defaultly 0 for some reasons.
     " you can omit the vice#class()'s 3rd argument
     " if you like default one.
@@ -18,9 +19,11 @@
     " in this case, `self.message()`.
 
     let s:Printable = vice#class('Printable', s:SID(), s:VICE_OPTIONS)
+
     function! {s:Printable.method('print')}(self)
         echon a:self.message()
     endfunction
+
     function! {s:Printable.method('say')}(self)
         echo a:self.message()
     endfunction
@@ -28,6 +31,7 @@
 
     let s:Foo = vice#class('Foo', s:SID(), s:VICE_OPTIONS)
     call s:Foo.extends(s:Printable)
+
     function! {s:Foo.method('message')}(self)
         return 'foo'
     endfunction
@@ -35,6 +39,7 @@
 
     let s:Bar = vice#class('Bar', s:SID(), s:VICE_OPTIONS)
     call s:Bar.extends(s:Printable)
+
     function! {s:Bar.method('message')}(self)
         return 'bar'
     endfunction
