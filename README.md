@@ -60,10 +60,6 @@ but traits can *require* some methods to implement
 - Trait can *require* some methods to implement
 
 ## Type constraints
-- .where()
-- when it should be called?
-    - How do other languages' system do that?
-    * it should be called when assigning a value.
 
     let s:class = vice#new('Klass')
     let meta = s:class._meta
@@ -79,6 +75,11 @@ but traits can *require* some methods to implement
             return len(a:Value) == 2
         endfunction
     endfunction
+
+- .where()
+- when it should be called?
+    - How do other languages' system do that?
+    * it should be called when assigning a value.
 
 ## etc.
 - Moose(Perl)'s before(), after()
