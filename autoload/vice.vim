@@ -55,8 +55,13 @@ function! s:ClassFactory.method(method_name) "{{{
     \   'method_name': a:method_name,
     \}
     function! builder.build(object)
+        " Create a stub for `self.real_name`.
         " NOTE: Currently allows to override.
-        let a:object[self.method_name] = function(self.real_name)
+        execute join([
+        \   'function! a:object[' . string(self.method_name) . '](...)',
+        \       'call call(' . string(self.real_name) . ', [self] + a:000)',
+        \   'endfunction',
+        \], "\n")
     endfunction
     call add(self._builders, builder)
 
