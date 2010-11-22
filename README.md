@@ -18,7 +18,7 @@
     " TODO: currently no way to require methods to implement,
     " in this case, `self.message()`.
 
-    let s:Printable = vice#class('Printable', s:SID(), s:VICE_OPTIONS)
+    let s:Printable = vice#trait('Printable', s:SID(), s:VICE_OPTIONS)
 
     function! {s:Printable.method('print')}(self)
         echon a:self.message()
@@ -28,9 +28,13 @@
         echo a:self.message()
     endfunction
 
+    function! s:Printable.requires()
+        return ['message']
+    endfunction
+
 
     let s:Foo = vice#class('Foo', s:SID(), s:VICE_OPTIONS)
-    call s:Foo.extends(s:Printable)
+    call s:Foo.can(s:Printable)
 
     function! {s:Foo.method('message')}(self)
         return 'foo'
@@ -38,7 +42,7 @@
 
 
     let s:Bar = vice#class('Bar', s:SID(), s:VICE_OPTIONS)
-    call s:Bar.extends(s:Printable)
+    call s:Bar.can(s:Printable)
 
     function! {s:Bar.method('message')}(self)
         return 'bar'
