@@ -134,13 +134,71 @@ function! s:MethodMaker_method(method_name, ...) dict "{{{
     endfunction
     call add(self._builders, builder)
 
+    let self._methods[a:method_name] = builder.real_name
+
     return 's:' . real_name
+endfunction "}}}
+
+function! s:MethodMaker__has_method(method_name) dict "{{{
+    return has_key(self._methods, a:method_name)
+endfunction "}}}
+
+function! s:MethodMaker__parent_has_method(method_name) dict "{{{
+    for super in self._super
+        if super._has_method(a:method_name)
+            return 1
+        endif
+        if super._parent_has_method(a:method_name)
+            return 1
+        endif
+    endfor
+    return 0
+endfunction "}}}
+
+function! s:MethodMaker__get_method(method_name, ...) dict "{{{
+    return call('get', [self._methods, a:method_name] + (a:0 ? [a:1] : []))
+endfunction "}}}
+
+function! s:MethodMaker__parent_get_method(method_name, ...) dict "{{{
+    let not_found = {}
+    for super in self._super
+        if super._has_method(a:method_name)
+            return super._get_method(a:method_name)
+        endif
+        let Value = super._parent_get_method(a:method_name, not_found)
+        if Value isnot not_found
+            return Value
+        endif
+    endfor
+    return a:0 ? a:1 : 0
+endfunction "}}}
+
+function! s:MethodMaker__call_parent_method(this, method_name, args) dict "{{{
+    " NOTE: the 1st arg is a:this.
+    let not_found = {}
+    let method = self._parent_get_method(a:method_name, not_found)
+    if method isnot not_found
+        if self._opt_generate_stub
+            return call(method, [a:this] + a:args)
+        else
+            return call(method, a:args, a:this)
+        endif
+    endif
+
+    throw "vice: .super() could not find the parent"
+    /       . " who has '" . a:method_name . "'."
 endfunction "}}}
 
 let s:MethodMaker = {
 \   '_sid': -1,
 \   '_opt_generate_stub': 0,
+\   '_methods': {},
 \   'method': s:get_local_func('MethodMaker_method'),
+\   '_has_method': s:get_local_func('MethodMaker__has_method'),
+\   '_parent_has_method': s:get_local_func('MethodMaker__parent_has_method'),
+\   '_get_method': s:get_local_func('MethodMaker__get_method'),
+\   '_parent_get_method': s:get_local_func('MethodMaker__parent_get_method'),
+\   '_call_parent_method': s:get_local_func('MethodMaker__call_parent_method'),
 \}
 " }}}
 " s:Extendable {{{
@@ -157,25 +215,18 @@ function! s:Extendable_extends(parent_factory) dict "{{{
         call self.parent.build()
         " Merge missing methods from parent class.
         call extend(a:this._object, self.parent._object, 'keep')
-        " Add it to the super classes.
-        call add(a:this._super, self.parent._object)
+        " Add its factory to the super classes.
+        call add(a:this._super, self.parent)
     endfunction
     call add(self._builders, builder)
 endfunction "}}}
 
-function! s:Extendable_super(...) dict "{{{
-    if len(self._super) == 1
-        return self._super[0]
-    endif
-    if a:0 && type(a:1) == type("")
-        " Look up the parent class by name.
-        for super in self._super
-            if super._class_name ==# a:1
-                return super
-            endif
-        endfor
-    endif
-    return self._super
+function! s:Extendable_super(this, method_name, ...) dict "{{{
+    " NOTE: This is called at runtime.
+    " Not while building an object.
+
+    " Look up the parent class's method.
+    return self._call_parent_method(a:this, a:method_name, (a:0 ? a:1 : []))
 endfunction "}}}
 
 let s:Extendable = {
