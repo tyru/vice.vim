@@ -51,7 +51,7 @@
     echo child.say()
 
 # TODO
-# Trait (Perl's role-like feature)
+## Trait (Perl's role-like feature)
 NOTE: The similar thing is possible with .extends(),
 but traits can *require* some methods to implement
 
@@ -79,6 +79,6 @@ but traits can *require* some methods to implement
         endfunction
     endfunction
 
-# etc.
+## etc.
 - Moose(Perl)'s before(), after()
     - override (or more like Aspect-Oriented?)
