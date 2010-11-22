@@ -20,7 +20,7 @@ function! s:SID()
 endfun
 
 
-let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 0})
+let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 0, 'generate_stub': 1})
 
 
 call s:RichStr.property('_str', '')
@@ -49,7 +49,7 @@ endfunction "}}}
 if 0
 
 " {'fn_property': 1}
-let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 1})
+let s:RichStr = vice#class('RichStr', s:SID(), {'fn_property': 1, 'generate_stub': 1})
 
 
 call s:RichStr.property('_str', '')
