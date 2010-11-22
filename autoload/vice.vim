@@ -144,8 +144,6 @@ function! s:Extendable_extends(parent_factory) dict "{{{
         call add(a:this._super, self.parent._object)
     endfunction
     call add(self._builders, builder)
-
-    return self
 endfunction "}}}
 
 function! s:Extendable_super(...) dict "{{{
