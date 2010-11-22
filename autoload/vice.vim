@@ -34,9 +34,12 @@ endfunction "}}}
 let s:ClassFactory = {}
 
 function! s:ClassFactory.new() "{{{
-    for builder in self._builders
-        call builder.build(self._object)
-    endfor
+    if has_key(self, '_builders')
+        for builder in self._builders
+            call builder.build(self._object)
+        endfor
+        unlet self._builders
+    endif
     return deepcopy(self._object)
 endfunction "}}}
 
