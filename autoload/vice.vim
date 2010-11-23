@@ -407,6 +407,12 @@ call extend(s:Trait, s:Extendable, 'error')
 " Implement some properties to satisfy abstruct parents.
 let s:Trait._builders = []    " s:Builder
 let s:Trait._class_name = ''    " s:MethodManager
+
+function! s:Trait_new() "{{{
+    throw "vice: Trait can't create an instance."
+endfunction "}}}
+
+let s:Trait.new = s:get_local_func('Trait_new')
 " }}}
 
 " :unlet for memory.
