@@ -34,7 +34,7 @@ endfunction
 
 
 let s:Foo = vice#class('Foo', s:SID(), s:VICE_OPTIONS)
-call s:Foo.can(s:IDecorate)
+call s:Foo.with(s:IDecorate)
 
 function! {s:Foo.method('message')}(self)
     return 'foo'
@@ -42,7 +42,7 @@ endfunction
 
 
 let s:Bar = vice#class('Bar', s:SID(), s:VICE_OPTIONS)
-call s:Bar.can(s:IDecorate)
+call s:Bar.with(s:IDecorate)
 
 function! {s:Bar.method('message')}(self)
     return 'bar'

@@ -339,7 +339,7 @@ function! s:Class_attribute(attribute_name, Value) dict "{{{
     call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
-function! s:Class_can(trait) dict "{{{
+function! s:Class_with(trait) dict "{{{
     " Extends all methods before using trait.
     call self.extends(a:trait)
 
@@ -347,7 +347,7 @@ function! s:Class_can(trait) dict "{{{
     function! builder.build(this)
         " The reason why only trait should postpone
         " its .build() process is that .method() can be
-        " after the .can({trait}) .
+        " after the .with({trait}) .
         " So `self.trait.requires()` method(s)
         " may not exist at the first time.
         if !self.has_postponed_once
@@ -373,7 +373,7 @@ let s:Class = {
 \   'property': s:get_local_func('Class_property'),
 \   'accessor': s:get_local_func('Class_accessor'),
 \   'attribute': s:get_local_func('Class_attribute'),
-\   'can': s:get_local_func('Class_can'),
+\   'with': s:get_local_func('Class_with'),
 \}
 call extend(s:Class, s:Builder, 'error')
 call extend(s:Class, s:MethodManager, 'error')
