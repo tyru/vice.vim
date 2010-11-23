@@ -379,6 +379,7 @@ endfunction "}}}
 
 let s:SkeletonObject = {
 \   'clone': s:get_local_func('SkeletonObject_clone'),
+\   'new'  : s:get_local_func('SkeletonObject_clone'),
 \}
 " }}}
 " s:Trait {{{
