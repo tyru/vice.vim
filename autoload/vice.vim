@@ -29,7 +29,7 @@ function! vice#class(class_name, sid, ...) "{{{
     \       '_sid': a:sid,
     \       '_object': obj,
     \       '_builders': [],
-    \       '_super': [],
+    \       '_super': -1,
     \       '_opt_generate_stub': get(options, 'generate_stub', 0),
     \   },
     \   'force'
@@ -48,7 +48,7 @@ function! vice#trait(class_name, sid, ...) "{{{
     \       '_object': (get(options, 'empty_object', 0) ?
     \                       {} : deepcopy(s:SkeletonObject)),
     \       '_builders': [],
-    \       '_super': [],
+    \       '_super': -1,
     \       '_opt_generate_stub': get(options, 'generate_stub', 0),
     \   },
     \   'force'
@@ -150,14 +150,15 @@ function! s:MethodManager__has_method(method_name) dict "{{{
 endfunction "}}}
 
 function! s:MethodManager__parent_has_method(method_name) dict "{{{
-    for super in self._super
+    if type(self._super) == type({})
+        let super = self._super
         if super._has_method(a:method_name)
             return 1
         endif
         if super._parent_has_method(a:method_name)
             return 1
         endif
-    endfor
+    endif
     return 0
 endfunction "}}}
 
@@ -166,16 +167,17 @@ function! s:MethodManager__get_method(method_name, ...) dict "{{{
 endfunction "}}}
 
 function! s:MethodManager__parent_get_method(method_name, ...) dict "{{{
-    let not_found = {}
-    for super in self._super
+    if type(self._super) == type({})
+        let super = self._super
         if super._has_method(a:method_name)
             return super._get_method(a:method_name)
         endif
+        let not_found = {}
         let Value = super._parent_get_method(a:method_name, not_found)
         if Value isnot not_found
             return Value
         endif
-    endfor
+    endif
     return a:0 ? a:1 : 0
 endfunction "}}}
 
@@ -215,6 +217,16 @@ let s:MethodManager = {
 " - ._builders
 
 function! s:Extendable_extends(parent_factory) dict "{{{
+    if type(self._super) == type({})
+        let quote = "'"
+        throw "vice: Class '" . self._class_name . "':"
+        \       . " multiple inheritance is prohibited:"
+        \       . " from Class '" . a:parent_factory._class_name . "',"
+        \       . " already inherited from Class '"
+        \       . self._super._class_name . "'."
+    endif
+    let self._super = a:parent_factory
+
     " a:parent_factory requires s:Builder.
     let builder = {'parent': a:parent_factory}
     function builder.build(this)
@@ -224,9 +236,6 @@ function! s:Extendable_extends(parent_factory) dict "{{{
         call extend(a:this._object, self.parent._object, 'keep')
     endfunction
     call self._add_builder(builder)
-
-    " Add its factory to the super classes.
-    call add(self._super, a:parent_factory)
 endfunction "}}}
 
 function! s:Extendable_super(this, method_name, ...) dict "{{{
