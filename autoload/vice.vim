@@ -158,6 +158,15 @@ function! s:MethodManager_method(method_name, ...) dict "{{{
     return 's:' . real_name
 endfunction "}}}
 
+function! s:MethodManager_super(inst, method_name, ...) dict "{{{
+    " NOTE: This is called at runtime.
+    " Not while building an object.
+
+    " Look up the parent class's method.
+    return s:MethodManager_call_parent_method(
+    \   self, a:inst, a:method_name, (a:0 ? a:1 : []))
+endfunction "}}}
+
 function! s:MethodManager_has_method(this, method_name) "{{{
     return has_key(a:this._methods, a:method_name)
 endfunction "}}}
@@ -217,6 +226,7 @@ let s:MethodManager = {
 \   '_opt_generate_stub': 0,
 \   '_methods': {},
 \   'method': s:get_local_func('MethodManager_method'),
+\   'super': s:get_local_func('MethodManager_super'),
 \}
 " }}}
 " s:Extendable {{{
@@ -225,7 +235,6 @@ let s:MethodManager = {
 " s:Extendable requires:
 " - ._class_name (String)
 " - self is a `s:Builder`
-" - self is a `s:MethodManager`
 
 function! s:Extendable_extends(parent_factory) dict "{{{
     if s:Extendable_has_super(self)
@@ -249,15 +258,6 @@ function! s:Extendable_extends(parent_factory) dict "{{{
     call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
-function! s:Extendable_super(inst, method_name, ...) dict "{{{
-    " NOTE: This is called at runtime.
-    " Not while building an object.
-
-    " Look up the parent class's method.
-    return s:MethodManager_call_parent_method(
-    \   self, a:inst, a:method_name, (a:0 ? a:1 : []))
-endfunction "}}}
-
 function! s:Extendable_has_super(this) "{{{
     return type(a:this._super) == type({})
 endfunction "}}}
@@ -268,7 +268,6 @@ endfunction "}}}
 
 let s:Extendable = {
 \   'extends': s:get_local_func('Extendable_extends'),
-\   'super': s:get_local_func('Extendable_super'),
 \   '_super': -1,
 \}
 " }}}
