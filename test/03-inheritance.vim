@@ -24,7 +24,7 @@ function! {s:Parent.method('bar')}(self)
     try
         call s:Parent.super(a:self, 'bar')
         Ok 0, "`s:Parent.super('bar')` throws an exception"
-    catch /vice:/
+    catch /\<vice:/
         Ok 1, "`s:Parent.super('bar')` throws an exception"
     endtry
     return 'bar'
@@ -40,7 +40,7 @@ function! {s:Child.method('foo', {'override': 1})}(self)
         Is r, 'foo', '.super() returns "foo".'
         Ok 1, "`s:Child.super('foo')` does not throw an exception"
         return r . 'l'
-    catch /vice:/
+    catch /\<vice:/
         Ok 0, "`s:Child.super('foo')` does not throw an exception"
         Diag '[' . v:exception . ']::[' . v:throwpoint . ']'
         return 'must not reach here'
@@ -51,7 +51,7 @@ function! {s:Child.method('baz')}(self)
     try
         call s:Child.super(a:self, 'baz')
         Ok 0, "`s:Child.super('baz')` throws an exception"
-    catch /vice:/
+    catch /\<vice:/
         Ok 1, "`s:Child.super('baz')` throws an exception"
     endtry
     return 'baz'
@@ -67,7 +67,7 @@ try
         echoerr "I'm a naughty child."
     endfunction
     Ok 0, "`{'override': 1}` is missing. must throw an exception."
-catch /vice:/
+catch /\<vice:/
     Ok 1, "`{'override': 1}` is missing. must throw an exception."
 endtry
 
@@ -81,7 +81,7 @@ function! s:run()
         Is child.foo(), 'fool', 'child.foo() is "fool"'
         Is child.bar(), 'bar', 'child.bar() is "bar"'
         Is child.baz(), 'baz', 'child.bar() is "baz"'
-    catch /vice:/
+    catch /\<vice:/
         Ok 0, "s:Child.new()"
         Diag '[' . v:exception . ']::[' . v:throwpoint . ']'
     endtry
