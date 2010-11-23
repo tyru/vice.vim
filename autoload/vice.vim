@@ -87,15 +87,14 @@ function! s:Builder_build() dict "{{{
     endwhile
 endfunction "}}}
 
-function! s:Builder__add_builder(builder) dict "{{{
-    call add(self._builders, a:builder)
+function! s:Builder_add_builder(this, builder) "{{{
+    call add(a:this._builders, a:builder)
 endfunction "}}}
 
 let s:Builder = {
 \   '_object': {},
 \   'new': s:get_local_func('Builder_new'),
 \   'build': s:get_local_func('Builder_build'),
-\   '_add_builder': s:get_local_func('Builder__add_builder'),
 \}
 " }}}
 " s:MethodManager {{{
@@ -128,12 +127,12 @@ function! s:MethodManager_method(method_name, ...) dict "{{{
             let a:this._object[self.method_name] = function(self.real_name)
         endif
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 
     " Check an rude override.
     if !get(options, 'override', 0)
-    \   && (self._has_method(a:method_name)
-    \       || self._parent_has_method(a:method_name))
+    \   && (s:MethodManager_has_method(self, a:method_name)
+    \       || s:MethodManager_parent_has_method(self, a:method_name))
         throw "vice: Class '" . self._class_name . "'"
         \       . ": method '" . a:method_name . "' is "
         \       . "already defined, please specify"
@@ -145,35 +144,36 @@ function! s:MethodManager_method(method_name, ...) dict "{{{
     return 's:' . real_name
 endfunction "}}}
 
-function! s:MethodManager__has_method(method_name) dict "{{{
-    return has_key(self._methods, a:method_name)
+function! s:MethodManager_has_method(this, method_name) "{{{
+    return has_key(a:this._methods, a:method_name)
 endfunction "}}}
 
-function! s:MethodManager__parent_has_method(method_name) dict "{{{
-    if type(self._super) == type({})
-        let super = self._super
-        if super._has_method(a:method_name)
+function! s:MethodManager_parent_has_method(this, method_name) "{{{
+    if type(a:this._super) == type({})
+        let super = a:this._super
+        if s:MethodManager_has_method(super, a:method_name)
             return 1
         endif
-        if super._parent_has_method(a:method_name)
+        if s:MethodManager_parent_has_method(super, a:method_name)
             return 1
         endif
     endif
     return 0
 endfunction "}}}
 
-function! s:MethodManager__get_method(method_name, ...) dict "{{{
-    return call('get', [self._methods, a:method_name] + (a:0 ? [a:1] : []))
+function! s:MethodManager_get_method(this, method_name, ...) "{{{
+    return call('get', [a:this._methods, a:method_name] + (a:0 ? [a:1] : []))
 endfunction "}}}
 
-function! s:MethodManager__parent_get_method(method_name, ...) dict "{{{
-    if type(self._super) == type({})
-        let super = self._super
-        if super._has_method(a:method_name)
-            return super._get_method(a:method_name)
+function! s:MethodManager_parent_get_method(this, method_name, ...) "{{{
+    if type(a:this._super) == type({})
+        let super = a:this._super
+        if s:MethodManager_has_method(super, a:method_name)
+            return s:MethodManager_get_method(super, a:method_name)
         endif
         let not_found = {}
-        let Value = super._parent_get_method(a:method_name, not_found)
+        let Value = s:MethodManager_parent_get_method(
+        \               super, a:method_name, not_found)
         if Value isnot not_found
             return Value
         endif
@@ -181,19 +181,19 @@ function! s:MethodManager__parent_get_method(method_name, ...) dict "{{{
     return a:0 ? a:1 : 0
 endfunction "}}}
 
-function! s:MethodManager__call_parent_method(this, method_name, args) dict "{{{
-    " NOTE: the 1st arg is a:this.
+function! s:MethodManager_call_parent_method(this, inst, method_name, args) "{{{
     let not_found = {}
-    let method = self._parent_get_method(a:method_name, not_found)
+    let method = s:MethodManager_parent_get_method(
+    \               a:this, a:method_name, not_found)
     if method isnot not_found
-        if self._opt_generate_stub
-            return call(method, [a:this] + a:args)
+        if a:this._opt_generate_stub
+            return call(method, [a:inst] + a:args)
         else
-            return call(method, a:args, a:this)
+            return call(method, a:args, a:inst)
         endif
     endif
 
-    throw "vice: Class '" . self._class_name . "':"
+    throw "vice: Class '" . a:this._class_name . "':"
     \       . " .super() could not find the parent"
     \       . " who has '" . a:method_name . "'."
 endfunction "}}}
@@ -203,11 +203,6 @@ let s:MethodManager = {
 \   '_opt_generate_stub': 0,
 \   '_methods': {},
 \   'method': s:get_local_func('MethodManager_method'),
-\   '_has_method': s:get_local_func('MethodManager__has_method'),
-\   '_parent_has_method': s:get_local_func('MethodManager__parent_has_method'),
-\   '_get_method': s:get_local_func('MethodManager__get_method'),
-\   '_parent_get_method': s:get_local_func('MethodManager__parent_get_method'),
-\   '_call_parent_method': s:get_local_func('MethodManager__call_parent_method'),
 \}
 " }}}
 " s:Extendable {{{
@@ -235,15 +230,16 @@ function! s:Extendable_extends(parent_factory) dict "{{{
         " Merge missing methods from parent class.
         call extend(a:this._object, self.parent._object, 'keep')
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
-function! s:Extendable_super(this, method_name, ...) dict "{{{
+function! s:Extendable_super(inst, method_name, ...) dict "{{{
     " NOTE: This is called at runtime.
     " Not while building an object.
 
     " Look up the parent class's method.
-    return self._call_parent_method(a:this, a:method_name, (a:0 ? a:1 : []))
+    return s:MethodManager_call_parent_method(
+    \   self, a:inst, a:method_name, (a:0 ? a:1 : []))
 endfunction "}}}
 
 let s:Extendable = {
@@ -272,7 +268,7 @@ function! s:Class_accessor(accessor_name, Value) dict "{{{
         \], "\n")
         let a:this._object[acc] = self.value
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
 function! s:Class_property(property_name, Value) dict "{{{
@@ -287,7 +283,7 @@ function! s:Class_property(property_name, Value) dict "{{{
         \   'error'
         \)
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 " s:SkeletonProperty {{{
 
@@ -310,7 +306,7 @@ function! s:Class_attribute(attribute_name, Value) dict "{{{
     function builder.build(this)
         let a:this._object[self.name] = self.value
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
 function! s:Class_can(trait) dict "{{{
@@ -325,7 +321,7 @@ function! s:Class_can(trait) dict "{{{
         " So `self.trait.requires()` method(s)
         " may not exist at the first time.
         if !self.has_postponed_once
-            call a:this._add_builder(self)
+            call s:Builder_add_builder(a:this, self)
             let self.has_postponed_once = 1
             return
         endif
@@ -340,7 +336,7 @@ function! s:Class_can(trait) dict "{{{
             endif
         endfor
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
 let s:Class = {
