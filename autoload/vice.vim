@@ -79,7 +79,9 @@ endfunction "}}}
 
 
 " s:Builder "{{{
-" This provides .build() which builds ._object
+" This provides:
+" - .build() which builds ._object
+" - .new() which creates object from ._object
 "
 " s:Builder requires:
 " - ._builders (List)
