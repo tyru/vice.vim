@@ -251,7 +251,7 @@ endfunction "}}}
 let s:Extendable = {
 \   'extends': s:get_local_func('Extendable_extends'),
 \   'super': s:get_local_func('Extendable_super'),
-\   '_super': [],
+\   '_super': -1,
 \}
 " }}}
 " s:Class {{{
