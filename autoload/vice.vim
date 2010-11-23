@@ -87,15 +87,14 @@ function! s:Builder_build() dict "{{{
     endwhile
 endfunction "}}}
 
-function! s:Builder__add_builder(builder) dict "{{{
-    call add(self._builders, a:builder)
+function! s:Builder_add_builder(this, builder) "{{{
+    call add(a:this._builders, a:builder)
 endfunction "}}}
 
 let s:Builder = {
 \   '_object': {},
 \   'new': s:get_local_func('Builder_new'),
 \   'build': s:get_local_func('Builder_build'),
-\   '_add_builder': s:get_local_func('Builder__add_builder'),
 \}
 " }}}
 " s:MethodManager {{{
@@ -128,7 +127,7 @@ function! s:MethodManager_method(method_name, ...) dict "{{{
             let a:this._object[self.method_name] = function(self.real_name)
         endif
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 
     " Check an rude override.
     if !get(options, 'override', 0)
@@ -231,7 +230,7 @@ function! s:Extendable_extends(parent_factory) dict "{{{
         " Merge missing methods from parent class.
         call extend(a:this._object, self.parent._object, 'keep')
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
 function! s:Extendable_super(inst, method_name, ...) dict "{{{
@@ -269,7 +268,7 @@ function! s:Class_accessor(accessor_name, Value) dict "{{{
         \], "\n")
         let a:this._object[acc] = self.value
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
 function! s:Class_property(property_name, Value) dict "{{{
@@ -284,7 +283,7 @@ function! s:Class_property(property_name, Value) dict "{{{
         \   'error'
         \)
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 " s:SkeletonProperty {{{
 
@@ -307,7 +306,7 @@ function! s:Class_attribute(attribute_name, Value) dict "{{{
     function builder.build(this)
         let a:this._object[self.name] = self.value
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
 function! s:Class_can(trait) dict "{{{
@@ -322,7 +321,7 @@ function! s:Class_can(trait) dict "{{{
         " So `self.trait.requires()` method(s)
         " may not exist at the first time.
         if !self.has_postponed_once
-            call a:this._add_builder(self)
+            call s:Builder_add_builder(a:this, self)
             let self.has_postponed_once = 1
             return
         endif
@@ -337,7 +336,7 @@ function! s:Class_can(trait) dict "{{{
             endif
         endfor
     endfunction
-    call self._add_builder(builder)
+    call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
 let s:Class = {
