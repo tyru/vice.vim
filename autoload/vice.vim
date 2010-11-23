@@ -153,8 +153,8 @@ function! s:MethodManager_has_method(this, method_name) "{{{
 endfunction "}}}
 
 function! s:MethodManager_parent_has_method(this, method_name) "{{{
-    if type(a:this._super) == type({})
-        let super = a:this._super
+    if s:Extendable_has_super(a:this)
+        let super = s:Extendable_get_super(a:this)
         if s:MethodManager_has_method(super, a:method_name)
             return 1
         endif
@@ -170,8 +170,8 @@ function! s:MethodManager_get_method(this, method_name, ...) "{{{
 endfunction "}}}
 
 function! s:MethodManager_parent_get_method(this, method_name, ...) "{{{
-    if type(a:this._super) == type({})
-        let super = a:this._super
+    if s:Extendable_has_super(a:this)
+        let super = s:Extendable_get_super(a:this)
         if s:MethodManager_has_method(super, a:method_name)
             return s:MethodManager_get_method(super, a:method_name)
         endif
@@ -218,7 +218,7 @@ let s:MethodManager = {
 " - self is a `s:MethodManager`
 
 function! s:Extendable_extends(parent_factory) dict "{{{
-    if type(self._super) == type({})
+    if s:Extendable_has_super(self)
         let quote = "'"
         throw "vice: Class '" . self._class_name . "':"
         \       . " multiple inheritance is prohibited:"
@@ -246,6 +246,14 @@ function! s:Extendable_super(inst, method_name, ...) dict "{{{
     " Look up the parent class's method.
     return s:MethodManager_call_parent_method(
     \   self, a:inst, a:method_name, (a:0 ? a:1 : []))
+endfunction "}}}
+
+function! s:Extendable_has_super(this) "{{{
+    return type(a:this._super) == type({})
+endfunction "}}}
+
+function! s:Extendable_get_super(this) "{{{
+    return a:this._super
 endfunction "}}}
 
 let s:Extendable = {
