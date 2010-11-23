@@ -115,17 +115,8 @@ function! s:MethodManager_method(method_name, ...) dict "{{{
     let builder = {
     \   'real_name': '<SNR>' . self._sid . '_' . real_name,
     \   'method_name': a:method_name,
-    \   'options': options,
     \}
     function! builder.build(this)
-        if has_key(a:this._object, self.method_name)
-        \   && !get(self.options, 'override', 0)
-            throw "vice: Class '" . a:this._class_name . "'"
-            \       . ": method '" . self.method_name . "' is "
-            \       . "already defined, please specify"
-            \       . " to .method(" . string(self.method_name) . ", "
-            \       . "`{'override': 1}`) to override."
-        endif
         if a:this._opt_generate_stub
             " Create a stub for `self.real_name`.
             execute join([
@@ -139,6 +130,16 @@ function! s:MethodManager_method(method_name, ...) dict "{{{
     endfunction
     call self._add_builder(builder)
 
+    " Check an rude override.
+    if !get(options, 'override', 0)
+    \   && (self._has_method(a:method_name)
+    \       || self._parent_has_method(a:method_name))
+        throw "vice: Class '" . self._class_name . "'"
+        \       . ": method '" . a:method_name . "' is "
+        \       . "already defined, please specify"
+        \       . " to .method(" . string(a:method_name) . ", "
+        \       . "`{'override': 1}`) to override."
+    endif
     let self._methods[a:method_name] = builder.real_name
 
     return 's:' . real_name
@@ -221,10 +222,11 @@ function! s:Extendable_extends(parent_factory) dict "{{{
         call self.parent.build()
         " Merge missing methods from parent class.
         call extend(a:this._object, self.parent._object, 'keep')
-        " Add its factory to the super classes.
-        call add(a:this._super, self.parent)
     endfunction
     call self._add_builder(builder)
+
+    " Add its factory to the super classes.
+    call add(self._super, a:parent_factory)
 endfunction "}}}
 
 function! s:Extendable_super(this, method_name, ...) dict "{{{
