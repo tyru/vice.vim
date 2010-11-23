@@ -71,9 +71,10 @@ endfunction "}}}
 
 
 " s:Builder "{{{
-" Abstruct class.
-" NOTE: s:Builder needs:
-" - ._builders
+" This provides .build() which builds ._object
+"
+" s:Builder requires:
+" - ._builders (List)
 
 function! s:Builder_new() dict "{{{
     call self.build()
@@ -98,10 +99,13 @@ let s:Builder = {
 \}
 " }}}
 " s:MethodManager {{{
-" Abstruct class.
-" NOTE: s:MethodManager needs:
-" - ._class_name
-" - ._builders
+" This checks inheritance relationship of `self`
+" when adding the method to ._object using .method()
+"
+" s:MethodManager requires:
+" - ._class_name (String)
+" - self is a `s:Builder`
+" - self is a `s:Extendable`
 
 function! s:MethodManager_method(method_name, ...) dict "{{{
     let options = a:0 ? a:1 : {}
@@ -206,10 +210,12 @@ let s:MethodManager = {
 \}
 " }}}
 " s:Extendable {{{
-" Abstruct class.
-" NOTE: s:Extendable needs:
-" - ._class_name
-" - ._builders
+" This provides .extends()
+"
+" s:Extendable requires:
+" - ._class_name (String)
+" - self is a `s:Builder`
+" - self is a `s:MethodManager`
 
 function! s:Extendable_extends(parent_factory) dict "{{{
     if type(self._super) == type({})
@@ -250,6 +256,12 @@ let s:Extendable = {
 " }}}
 " s:Class {{{
 " See vice#class() for the constructor.
+"
+" Meta object for creating an instance (._object).
+"
+" s:Class is a `s:Builder`
+" s:Class is a `s:MethodManager`
+" s:Class is a `s:Extendable`
 
 function! s:Class_accessor(accessor_name, Value) dict "{{{
     let builder = {
@@ -363,14 +375,20 @@ let s:SkeletonObject = {
 " }}}
 " s:Trait {{{
 " vice#trait() for the constructor.
+"
+" Meta object for creating a trait.
+"
+" - s:Trait is a `s:Builder`
+" - s:Trait is a `s:MethodManager`
+" - s:Trait is a `s:Extendable`
 
 let s:Trait = {}
 call extend(s:Trait, s:Builder, 'error')
 call extend(s:Trait, s:MethodManager, 'error')
 call extend(s:Trait, s:Extendable, 'error')
 " Implement some properties to satisfy abstruct parents.
-let s:Trait._builders = []
-let s:Trait._class_name = ''
+let s:Trait._builders = []    " s:Builder
+let s:Trait._class_name = ''    " s:MethodManager
 " }}}
 
 " :unlet for memory.
