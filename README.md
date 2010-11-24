@@ -14,9 +14,6 @@
 
 
     " Trait
-    "
-    " TODO: currently no way to require methods to implement,
-    " in this case, `self.message()`.
 
     let s:Printable = vice#trait('Printable', s:SID(), s:VICE_OPTIONS)
 
