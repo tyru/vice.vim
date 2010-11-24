@@ -31,7 +31,7 @@
 
 
     let s:Foo = vice#class('Foo', s:SID(), s:VICE_OPTIONS)
-    call s:Foo.can(s:Printable)
+    call s:Foo.with(s:Printable)
 
     function! {s:Foo.method('message')}(self)
         return 'foo'
@@ -39,7 +39,7 @@
 
 
     let s:Bar = vice#class('Bar', s:SID(), s:VICE_OPTIONS)
-    call s:Bar.can(s:Printable)
+    call s:Bar.with(s:Printable)
 
     function! {s:Bar.method('message')}(self)
         return 'bar'
