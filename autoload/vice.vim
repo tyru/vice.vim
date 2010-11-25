@@ -74,7 +74,15 @@ let s:SID_PREFIX = s:SID()
 delfunc s:SID
 
 function! s:get_local_func(function_name) "{{{
-    return function('<SNR>' . s:SID_PREFIX . '_' . a:function_name)
+    return function(s:format_local_func(a:function_name, s:SID_PREFIX))
+endfunction "}}}
+
+function! s:format_local_func(function_name, sid) "{{{
+    return '<SNR>' . a:sid . '_' . a:function_name
+endfunction "}}}
+
+function! s:get_random_function_string() "{{{
+    return substitute(tempname(), '[^a-zA-Z0-9_]', '', 'g')
 endfunction "}}}
 
 
@@ -96,6 +104,9 @@ function! s:Builder_build() dict "{{{
         let builder = remove(self._builders, 0)
         call builder.build(self)
     endwhile
+    if has_key(self, '_constructor')
+        call call(self._constructor, [self._object])
+    endif
 endfunction "}}}
 
 function! s:Builder_add_builder(this, builder) "{{{
@@ -119,8 +130,7 @@ let s:Builder = {
 
 function! s:MethodManager_method(method_name, ...) dict "{{{
     let options = a:0 ? a:1 : {}
-    let class_name = self._class_name
-    let real_name = class_name . '_' . a:method_name
+    let real_name = s:MethodManager_format_full_method_name(self, a:method_name)
 
     " The function `real_name` doesn't exist
     " when .method() is called.
@@ -219,6 +229,10 @@ function! s:MethodManager_call_parent_method(this, inst, method_name, args) "{{{
     throw "vice: Class '" . a:this._class_name . "':"
     \       . " .super() could not find the parent"
     \       . " who has '" . a:method_name . "'."
+endfunction "}}}
+
+function! s:MethodManager_format_full_method_name(this, method_name) "{{{
+    return a:this._class_name . '_' . a:method_name
 endfunction "}}}
 
 let s:MethodManager = {
@@ -368,11 +382,20 @@ function! s:Class_with(trait) dict "{{{
     call s:Builder_add_builder(self, builder)
 endfunction "}}}
 
+function! s:Class_constructor() dict "{{{
+    let full_name = s:MethodManager_format_full_method_name(
+    \   self, s:get_random_function_string()
+    \)
+    let self._constructor = s:format_local_func(full_name, self._sid)
+    return 's:' . full_name
+endfunction "}}}
+
 let s:Class = {
 \   'property': s:get_local_func('Class_property'),
 \   'accessor': s:get_local_func('Class_accessor'),
 \   'attribute': s:get_local_func('Class_attribute'),
 \   'with': s:get_local_func('Class_with'),
+\   'constructor': s:get_local_func('Class_constructor'),
 \}
 call extend(s:Class, s:Builder, 'error')
 call extend(s:Class, s:MethodManager, 'error')
