@@ -94,18 +94,18 @@ endfunction "}}}
 " s:Builder requires:
 " - ._builders (List)
 
-function! s:Builder_new() dict "{{{
-    call self.build()
+function! s:Builder_new(...) dict "{{{
+    call call(self.build, a:000, self)
     return deepcopy(self._object)
 endfunction "}}}
 
-function! s:Builder_build() dict "{{{
+function! s:Builder_build(...) dict "{{{
     while !empty(self._builders)
         let builder = remove(self._builders, 0)
         call builder.build(self)
     endwhile
     if has_key(self, '_constructor')
-        call call(self._constructor, [self._object])
+        call call(self._constructor, [self._object] + a:000)
     endif
 endfunction "}}}
 
