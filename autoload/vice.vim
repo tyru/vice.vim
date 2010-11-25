@@ -130,25 +130,25 @@ let s:Builder = {
 
 function! s:MethodManager_method(method_name, ...) dict "{{{
     let options = a:0 ? a:1 : {}
-    let real_name = s:MethodManager_format_full_method_name(self, a:method_name)
+    let full_name = s:MethodManager_format_full_method_name(self, a:method_name)
 
-    " The function `real_name` doesn't exist
+    " The function `full_name` doesn't exist
     " when .method() is called.
     " So I need to build self._object at .new()
     let builder = {
-    \   'real_name': '<SNR>' . self._sid . '_' . real_name,
+    \   'full_name': '<SNR>' . self._sid . '_' . full_name,
     \   'method_name': a:method_name,
     \}
     function! builder.build(this)
         if a:this._opt_generate_stub
-            " Create a stub for `self.real_name`.
+            " Create a stub for `self.full_name`.
             execute join([
             \   'function! a:this._object[' . string(self.method_name) . '](...)',
-            \       'return call(' . string(self.real_name) . ', [self] + a:000)',
+            \       'return call(' . string(self.full_name) . ', [self] + a:000)',
             \   'endfunction',
             \], "\n")
         else
-            let a:this._object[self.method_name] = function(self.real_name)
+            let a:this._object[self.method_name] = function(self.full_name)
         endif
     endfunction
     call s:Builder_add_builder(self, builder)
@@ -163,9 +163,9 @@ function! s:MethodManager_method(method_name, ...) dict "{{{
         \       . " to .method(" . string(a:method_name) . ", "
         \       . "`{'override': 1}`) to override."
     endif
-    let self._methods[a:method_name] = builder.real_name
+    let self._methods[a:method_name] = builder.full_name
 
-    return 's:' . real_name
+    return 's:' . full_name
 endfunction "}}}
 
 function! s:MethodManager_super(inst, method_name, ...) dict "{{{
