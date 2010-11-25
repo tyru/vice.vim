@@ -15,7 +15,7 @@ function! vice#class(class_name, sid, ...) "{{{
     let options = a:0 ? a:1 : {}
 
     let obj = {}
-    if get(options, 'auto_clone_method', 1)
+    if get(options, 'auto_clone_method', 0)
         let obj.clone = s:SkeletonObject.clone
     endif
     if get(options, 'auto_new_method', 0)
@@ -42,7 +42,7 @@ function! vice#trait(class_name, sid, ...) "{{{
     let options = a:0 ? a:1 : {}
 
     let obj = {}
-    if get(options, 'auto_clone_method', 1)
+    if get(options, 'auto_clone_method', 0)
         let obj.clone = s:SkeletonObject.clone
     endif
     if get(options, 'auto_new_method', 0)

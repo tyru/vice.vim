@@ -27,7 +27,7 @@ function! s:run()
     Is foo.message(), "foo", '`foo.message()` is "foo".'
 
     let props = filter(sort(keys(foo)), 'v:val[0] != "_"')
-    IsDeeply props, ['clone', 'message'], "`obj` has public methods `.clone()`, `.message()`."
+    IsDeeply props, ['message'], "`obj` has public methods `.message()`."
 endfunction
 
 call s:run()

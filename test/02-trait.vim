@@ -63,7 +63,7 @@ function! s:run()
 
     for obj in [foo, bar]
         let props = filter(sort(keys(obj)), 'v:val[0] != "_"')
-        IsDeeply props, ['clone', 'emphasize', 'message', 'quote'], "`obj` has public methods `.clone()`, `.emphasize()`, `.message()`, `.quote()`."
+        IsDeeply props, ['emphasize', 'message', 'quote'], "`obj` has public methods `.emphasize()`, `.message()`, `.quote()`."
     endfor
 endfunction
 
