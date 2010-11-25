@@ -29,7 +29,7 @@ function! vice#class(class_name, sid, ...) "{{{
     \       '_sid': a:sid,
     \       '_object': obj,
     \       '_builders': [],
-    \       '_super': -1,
+    \       '_super': {},
     \       '_opt_generate_stub': get(options, 'generate_stub', 0),
     \   },
     \   'force'
@@ -56,7 +56,7 @@ function! vice#trait(class_name, sid, ...) "{{{
     \       '_sid': a:sid,
     \       '_object': obj,
     \       '_builders': [],
-    \       '_super': -1,
+    \       '_super': {},
     \       '_opt_generate_stub': get(options, 'generate_stub', 0),
     \   },
     \   'force'
@@ -273,7 +273,7 @@ function! s:Extendable_extends(parent_factory) dict "{{{
 endfunction "}}}
 
 function! s:Extendable_has_super(this) "{{{
-    return type(a:this._super) == type({})
+    return !empty(a:this._super)
 endfunction "}}}
 
 function! s:Extendable_get_super(this) "{{{
@@ -282,7 +282,7 @@ endfunction "}}}
 
 let s:Extendable = {
 \   'extends': s:get_local_func('Extendable_extends'),
-\   '_super': -1,
+\   '_super': {},
 \}
 " }}}
 " s:Class {{{
