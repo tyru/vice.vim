@@ -7,6 +7,8 @@ set cpo&vim
 " }}}
 
 
+let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 0))
+
 " Interfaces {{{
 
 function! vice#class(class_name, sid, ...) "{{{
