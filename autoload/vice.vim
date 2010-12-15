@@ -7,9 +7,13 @@ set cpo&vim
 " }}}
 
 
-let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 0))
+let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 1))
 
 " Interfaces {{{
+
+function! vice#load() "{{{
+    " dummy function to load this script
+endfunction "}}}
 
 function! vice#class(class_name, sid, ...) "{{{
     " FIXME: hmm, all members including parents' members
