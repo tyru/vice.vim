@@ -64,7 +64,7 @@
     call bar.say()
 
 ## Trait (Perl's role-like feature)
-- Trait can force implementer's class to implement some methods.
+- Trait can *provide* some methods
 - Trait can *require* some methods to implement
 
 # TODO
