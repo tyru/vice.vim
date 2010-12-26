@@ -37,6 +37,16 @@ INTERFACE				*vice-interface* {{{
 ------------------------------------------------------------------------------
 FUNCTIONS				*vice-functions* {{{
 
+
+vice#class({classname}, {sid} [, {options}])			*vice#class()*
+	Create and return a class object.
+
+	generate_stub (Default: 0)
+		Get the object as the first argument.
+		(I'm usually using "this" as its variable name).
+		This is useful because I sometimes forgot to add
+		"dict" to its methods.
+
 }}}
 }}}
 ==============================================================================
