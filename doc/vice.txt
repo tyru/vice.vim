@@ -40,6 +40,23 @@ FUNCTIONS				*vice-functions* {{{
 
 vice#class({classname}, {sid} [, {options}])			*vice#class()*
 	Create and return a class object.
+	See |vice-function-arguments| about its arguments.
+
+vice#trait({classname}, {sid} [, {options}])			*vice#trait()*
+	Create and return a trait object.
+	See |vice-function-arguments| about its arguments.
+
+
+
+Above functions' arguments		*vice-function-arguments*
+-----------------------------
+
+	auto_clone_method
+		Create a method ".clone()".
+
+	auto_new_method
+		Create a method ".new()".
+		It does the same thing as ".clone()".
 
 	generate_stub (Default: 0)
 		Get the object as the first argument.
