@@ -7,7 +7,7 @@ set cpo&vim
 " }}}
 
 
-let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 1))
+let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 2))
 
 " Interfaces {{{
 
@@ -111,7 +111,11 @@ function! s:Builder_build(...) dict "{{{
         call builder.build(self)
     endwhile
     if has_key(self, '_constructor')
-        call call(self._constructor, [self._object] + a:000)
+        if self._opt_generate_stub
+            call call(self._constructor, [self._object] + a:000)
+        else
+            call call(self._constructor, a:000, self._object)
+        endif
     endif
 endfunction "}}}
 
