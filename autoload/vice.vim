@@ -7,7 +7,7 @@ set cpo&vim
 " }}}
 
 
-let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 2))
+let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 3))
 
 " Interfaces {{{
 
@@ -280,6 +280,8 @@ function! s:Extendable_extends(parent_factory) dict "{{{
         call extend(a:this._object, self.parent._object, 'keep')
     endfunction
     call s:Builder_add_builder(self, builder)
+
+    return self
 endfunction "}}}
 
 function! s:Extendable_has_super(this) "{{{
@@ -322,6 +324,8 @@ function! s:Class_accessor(accessor_name, Value) dict "{{{
         let a:this._object[acc] = self.value
     endfunction
     call s:Builder_add_builder(self, builder)
+
+    return self
 endfunction "}}}
 
 function! s:Class_property(property_name, Value) dict "{{{
@@ -337,6 +341,8 @@ function! s:Class_property(property_name, Value) dict "{{{
         \)
     endfunction
     call s:Builder_add_builder(self, builder)
+
+    return self
 endfunction "}}}
 " s:SkeletonProperty {{{
 
@@ -360,6 +366,8 @@ function! s:Class_attribute(attribute_name, Value) dict "{{{
         let a:this._object[self.name] = self.value
     endfunction
     call s:Builder_add_builder(self, builder)
+
+    return self
 endfunction "}}}
 
 function! s:Class_with(trait) dict "{{{
@@ -390,6 +398,8 @@ function! s:Class_with(trait) dict "{{{
         endfor
     endfunction
     call s:Builder_add_builder(self, builder)
+
+    return self
 endfunction "}}}
 
 function! s:Class_constructor() dict "{{{
