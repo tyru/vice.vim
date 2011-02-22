@@ -7,7 +7,7 @@ set cpo&vim
 " }}}
 
 
-let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 3))
+let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 4))
 
 " Interfaces {{{
 
@@ -105,6 +105,10 @@ function! s:Builder_new(...) dict "{{{
     return deepcopy(self._object)
 endfunction "}}}
 
+function! s:Builder_clone() dict "{{{
+    return deepcopy(self)
+endfunction "}}}
+
 function! s:Builder_build(...) dict "{{{
     while !empty(self._builders)
         let builder = remove(self._builders, 0)
@@ -126,6 +130,7 @@ endfunction "}}}
 let s:Builder = {
 \   '_object': {},
 \   'new': s:get_local_func('Builder_new'),
+\   'clone': s:get_local_func('Builder_clone'),
 \   'build': s:get_local_func('Builder_build'),
 \}
 " }}}
