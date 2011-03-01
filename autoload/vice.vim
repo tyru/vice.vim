@@ -7,7 +7,7 @@ set cpo&vim
 " }}}
 
 
-let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 4))
+let g:vice#version = str2nr(printf('%02d%02d%03d', 0, 1, 5))
 
 " Interfaces {{{
 
@@ -22,10 +22,10 @@ function! vice#class(class_name, sid, ...) "{{{
 
     let obj = {}
     if get(options, 'auto_clone_method', 0)
-        let obj.clone = s:SkeletonObject.clone
+        let obj.clone = s:get_local_func('Clonable_clone')
     endif
     if get(options, 'auto_new_method', 0)
-        let obj.new = s:SkeletonObject.new
+        let obj.new = s:get_local_func('Clonable_clone')
     endif
 
     return extend(
@@ -49,10 +49,10 @@ function! vice#trait(class_name, sid, ...) "{{{
 
     let obj = {}
     if get(options, 'auto_clone_method', 0)
-        let obj.clone = s:SkeletonObject.clone
+        let obj.clone = s:get_local_func('Clonable_clone')
     endif
     if get(options, 'auto_new_method', 0)
-        let obj.new = s:SkeletonObject.new
+        let obj.new = s:get_local_func('Clonable_clone')
     endif
 
     return extend(
@@ -429,16 +429,6 @@ call extend(s:Class, s:Extendable, 'error')
 let s:Class._builders = []
 let s:Class._class_name = ''
 " }}}
-" s:SkeletonObject {{{
-function! s:SkeletonObject_clone() dict "{{{
-    return deepcopy(self)
-endfunction "}}}
-
-let s:SkeletonObject = {
-\   'clone': s:get_local_func('SkeletonObject_clone'),
-\   'new'  : s:get_local_func('SkeletonObject_clone'),
-\}
-" }}}
 " s:Trait {{{
 " vice#trait() for the constructor.
 "
@@ -461,6 +451,11 @@ function! s:Trait_new() "{{{
 endfunction "}}}
 
 let s:Trait.new = s:get_local_func('Trait_new')
+" }}}
+" s:Clonable (for .clone() method) {{{
+function! s:Clonable_clone() dict "{{{
+    return deepcopy(self)
+endfunction "}}}
 " }}}
 
 " :unlet for memory.
